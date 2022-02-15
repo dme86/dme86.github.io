@@ -1,0 +1,59 @@
+# Site settings
+title: Daniel Meier
+email: me.daniel.meier@gmail.com
+url: /dme86/
+description: "Write an awesome description for your new site here. You can edit this line in _config.yml. It will appear in your document head meta (for Google search results) and in your feed.xml site description."
+keywords: "DevOps, Cloud, AWS, Linux, Terraform, Ansible, Automation, Consulting"
+skills: "DevOps Engineer - Cloud Architect - IT Consultant"
+meta_author: Daniel Meier
+
+# Google webmaster tools
+google_verify:
+
+# Contact form:
+# - static : pass through formspree.io to validate email sending
+# - disqus : replace contact form by disqus thread
+# - comment the line below if you want to stick with the default PHP contact form
+contact: static
+
+# Color settings (hex-codes without the leading hash-tag)
+color:
+  primary: 18bc9c #80B3FF
+  primary-rgb: "24,288,156" #"128,179,255"
+  secondary: 2c3e50 #FD6E8A
+  secondary-dark: 233140 #A2122F
+
+# Footer settings
+footer:
+  copyright: Daniel Meier
+  location: Location
+  social: Around the Web
+  credits: Credits
+
+# Social networks usernames
+social:
+  - title: linkedin
+    url: http://linkedin.com/in/dmeier86
+  - title: github
+    url: http://github.com/dme86
+
+# Postal address
+address:
+  - line: Daniel Meier
+  - line: Lembergerstr. 12
+  - line: 66969 Salzwoog
+
+# Credits content
+credits: 'Thanks to <a href="https://www.gentoo.org" target="_blank" >Gentoo</a> for the best OS, <br><a href="https://jekyllrb.com/" target="_blank" >jekyll</a> for static site generation and <a href="https://www.github.com/" target="_blank" >GitHub</a> for hosting'
+
+# Build settings
+markdown: kramdown
+permalink: pretty
+
+#for posts
+defaults:
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      permalink: ""

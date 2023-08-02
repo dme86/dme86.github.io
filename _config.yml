@@ -2,7 +2,7 @@
 title:               Dan's Blog
 tagline:             'DevOps and such'
 description:         'add something'
-url:                 https://dme86.github.io/
+url:                 https://dme86.github.io
 baseurl:             ''
 paginate:            5
 permalink:           pretty

@@ -91,7 +91,9 @@ If you now run it (`./aws_s3_inventory.py | jq`), you should see an similar outp
 You are now able to use tags to filter and perform tasks on specific S3 buckets based on their attributes.
 
 Example playbook:
+{% raw %}
 ```yaml
+---
 - name: Example S3 bucket tasks
   hosts: all
   gather_facts: no
@@ -121,6 +123,7 @@ Example playbook:
       #     msg: "Performing tasks for Production environment"
       #   when: hostvars[inventory_hostname].tags.Environment == "Production"
 ```
+{% endraw %}
 
 For simple testing you could call ansible like:
 

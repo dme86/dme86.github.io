@@ -21,32 +21,7 @@ The first approach can lead to a tangled web of dependencies, creating a potenti
 
 The concept revolves around utilizing Terraform as the provisioner and Ansible for configuration management. In this approach, we primarily use Terraform to create S3 buckets, ensuring proper  [tagging alignment with recommended practices](https://docs.aws.amazon.com/whitepapers/latest/tagging-best-practices/tagging-best-practices.html). Subsequently, the configuration of these buckets is handled seamlessly through Ansible. While this approach may initially appear counterintuitive, trust me, it gradually reveals its inherent logic and ultimately simplifies your life and that of your developers.
 
-As an example, Ansible enables you to configure all buckets that possess specific tags. For instance:
-
-```yaml
---
-- name: Enable versioning for S3 buckets
-  hosts: localhost
-  gather_facts: false
-  tasks:
-    - name: Get S3 bucket list
-      community.aws.aws_s3_bucket_info:
-        region: "us-east-1"  # Replace with the appropriate region
-        tags:
-          - "team:foo"
-          - "stage:bar"
-      register: s3_buckets
-
-
-    - name: Enable versioning for matching buckets
-      community.aws.aws_s3_bucket_versioning:
-        bucket: "{{ item.name }}"
-        status: enabled
-        region: "us-east-1"  # Replace with the appropriate region
-      loop: "{{ s3_buckets.buckets }}"
-  ````
-
-This Ansible script automates the process of enabling versioning for AWS S3 buckets. It retrieves information about S3 buckets with specific tags ("team:foo" and "stage:bar") using the  **aws_s3_bucket_info**  module. The script then enables versioning for each matching bucket using the  **aws_s3_bucket_versioning**  module.
+If you're interested, please read my [ansible article](https://dme86.github.io/2023/08/01/Write-an-Ansible-dynamic-inventory-for-AWS-S3/); it will show you how to write a [dynamic inventory](https://docs.ansible.com/ansible/latest/inventory_guide/intro_dynamic_inventory.html) for S3 and how to utilize a playbook dealing with various AWS tags.
 
 Indeed, it's remarkably straightforward! With just a few lines of YAML code, beloved by all developers, you can effortlessly configure your bucket(s). The beauty of this approach extends beyond bucket configuration. You no longer need to worry about deploying infrastructure configurations on a global scale amidst intricate terraform scenarios. Simply let Ansible handle the task at hand, allowing it to seamlessly fulfill its purpose.
 

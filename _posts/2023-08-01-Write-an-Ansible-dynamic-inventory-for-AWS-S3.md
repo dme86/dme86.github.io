@@ -92,7 +92,6 @@ You are now able to use tags to filter and perform tasks on specific S3 buckets 
 
 Example playbook:
 ```yaml
----
 - name: Example S3 bucket tasks
   hosts: all
   gather_facts: no
@@ -104,7 +103,7 @@ Example playbook:
         var: hostvars[inventory_hostname].tags
 
 
-    - name: Perform tasks based on the "Environment" tag
+    - name: Perform tasks based on the Environment tag
       debug:
         msg: "Performing tasks on S3 bucket {{ inventory_hostname }} with environment {{ hostvars[inventory_hostname].tags.Environment }}"
 

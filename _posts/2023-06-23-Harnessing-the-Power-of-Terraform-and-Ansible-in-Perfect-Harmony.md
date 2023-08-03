@@ -17,6 +17,39 @@ Suppose you find yourself managing numerous S3 buckets within your AWS environme
 
 The first approach can lead to a tangled web of dependencies, creating a potential "dependency hell" scenario. This occurs when you have numerous nested and versioned modules, making it increasingly challenging to maintain control over your environment in the long run. Imagine the scenario where you need to switch versions, only to discover that some of your essential modules are incompatible with each other. In such cases, you would need to resolve the issues in both modules, release newer versions using "git tag," and ensure that your root module is appropriately versioned. The result? A chaotic and complex environment to navigate.
 
+This terraform example uses a [null_resource](https://registry.terraform.io/providers/hashicorp/null/latest/docs/resources/resource), which will be triggered if the **ID** of the resource 'bucket b' changes. This means the playbook will be triggered and configured *initially*. The configuration will *not* be stored in the Terraform state, and it is not required to be there. You'll be able to change it afterwards, for example, from other ansible repositories.
+
+```hcl
+provider "aws" {
+  region = "eu-central-1"
+}
+
+
+resource "aws_s3_bucket" "b" {
+  bucket = "testing-demo-bucket"
+
+  tags = {
+    Name        = "My bucket"
+    Environment = "Dev"
+  }
+}
+
+resource "null_resource" "ansible_provisioner" {
+  # Use null_resource as a trigger for local-exec provisioner
+  triggers = {
+    s3_id = aws_s3_bucket.b.id
+  }
+
+  provisioner "local-exec" {
+    command = "ansible-playbook -i 'localhost,' -c local playbook.yml"
+  }
+}
+```
+
+> You may be interested of how to modify config for certain buckets
+> on the fly with ansible and tagged resources. Therefore please read my [ansible
+> article](https://dme86.github.io/2023/08/01/Write-an-Ansible-dynamic-inventory-for-AWS-S3/).
+
 ## Separation of concerns
 
 The concept revolves around utilizing Terraform as the provisioner and Ansible for configuration management. In this approach, we primarily use Terraform to create S3 buckets, ensuring proper  [tagging alignment with recommended practices](https://docs.aws.amazon.com/whitepapers/latest/tagging-best-practices/tagging-best-practices.html). Subsequently, the configuration of these buckets is handled seamlessly through Ansible. While this approach may initially appear counterintuitive, trust me, it gradually reveals its inherent logic and ultimately simplifies your life and that of your developers.

@@ -35,6 +35,10 @@
  */
 
 /* Prevent scroll on narrow devices */
+.rounded-image {
+  border-radius: 50%;
+}
+
 html,
 body {
   overflow-x: hidden;

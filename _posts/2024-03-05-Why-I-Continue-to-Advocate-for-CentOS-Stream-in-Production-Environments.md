@@ -1,6 +1,7 @@
 ---
 layout: post
 mermaid: true
+tags: [Linux, CentOS]
 ---
 
 

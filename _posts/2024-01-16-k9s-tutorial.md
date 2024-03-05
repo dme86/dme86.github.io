@@ -1,6 +1,7 @@
 ---
 title: k9s Tutorial
 layout: page
+tags: [Tutorials]
 ---
 
 I am excited to introduce an article about k9s, a powerful tool designed for efficient management of kubernetes clusters, whether it be on platforms like EKS or k3s. This tool has significantly enhanced my productivity, allowing me to navigate kubernetes environments, manage pods, and swiftly identify issues with remarkable speed.

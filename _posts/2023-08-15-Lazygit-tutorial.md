@@ -1,6 +1,7 @@
 ---
 tile: Lazygit tutorial
 layout: post
+tags: [Tutorials]
 ---
 
 This is my [Lazygit](https://github.com/jesseduffield/lazygit) tutorial, which will help you get an overview of the most important features. It will *speed up your git workflow* and make it **easier** for you.

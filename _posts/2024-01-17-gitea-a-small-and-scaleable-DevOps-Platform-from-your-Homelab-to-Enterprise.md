@@ -1,6 +1,7 @@
 ---
 title: Gitea - A Small and Scaleable DevOps Platform - From Your Homelab to Enterprise
 layout: page
+tags: [Tutorials]
 ---
 
 What I appreciate in software is when it scales efficiently. I dislike overstretched goals and under-delivering on value.

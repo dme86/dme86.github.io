@@ -2,6 +2,7 @@
 layout: page
 title: About
 ---
+
 ## Welcome to My blog!
 
 Hello, and welcome to my blog 👋! I'm Dan, a passionate DevOps Engineer with a strong interest in open source and cloud development. This blog is my space to share my experiences, insights, and knowledge in the world of DevOps, as well as my adventures in the realm of Ansible, Terraform, CI, and AWS.
@@ -23,13 +24,13 @@ Through this blog, I aim to contribute to the vibrant DevOps community by sharin
 Here's what you can expect from this blog:
 
 1.  **Tutorials and How-Tos:** Step-by-step guides to help you get started with Ansible, Terraform, CI, AWS, and other exciting tools in the DevOps toolkit.
-    
+
 2.  **Deep Dives:** In-depth explorations of advanced topics, providing you with a comprehensive understanding of key concepts and techniques.
-    
+
 3.  **Problem-Solving:** Real-world scenarios and solutions to common challenges faced by DevOps practitioners.
-    
+
 4.  **News and Updates:** Stay up-to-date with the latest developments in the DevOps ecosystem, open-source projects, and cloud technologies.
-    
+
 
 ### Contact Me
 

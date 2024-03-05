@@ -1,6 +1,7 @@
 ---
 title: Running Your Own AI on Your Local Machine - A Guide
 layout: page
+tags: [AI]
 ---
 
 In another article, I talked about utilizing [GPT's API to write a Telegram Chat-Bot](https://dme86.github.io/2024/01/10/Write-your-own-GPT-based-Telegram-Assistent/). Now, I will write about using an [LLM](https://en.wikipedia.org/wiki/LLaMA) *like* GPT but on your local machine and for free.

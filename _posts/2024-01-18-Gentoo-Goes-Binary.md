@@ -1,6 +1,7 @@
 ---
 title: Gentoo goes Binary
 layout: page
+tags: [Linux, Gentoo]
 ---
 
 I was genuinely excited as I read the latest Gentoo news regarding their commitment to [providing more binary packages](https://www.gentoo.org/news/2023/12/29/Gentoo-binary.html) for Gentoo stable.

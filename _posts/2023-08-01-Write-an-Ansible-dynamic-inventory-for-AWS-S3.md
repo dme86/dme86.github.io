@@ -1,6 +1,7 @@
 ---
 title: Write an Ansible dynamic inventory for AWS S3
 layout: post
+tags: [Ansible]
 ---
 
 You may have already read my [former article](https://dme86.github.io/2023/06/23/Harnessing-the-Power-of-Terraform-and-Ansible-in-Perfect-Harmony/), which describes how to use Terraform **together** with Ansible.

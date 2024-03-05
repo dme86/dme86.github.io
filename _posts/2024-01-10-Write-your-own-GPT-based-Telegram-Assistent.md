@@ -1,7 +1,9 @@
 ---
 title: Write Your Own GPT based Telegram Assistent
 layout: page
+tags: [AI]
 ---
+
 In this article, I will teach you how to write a GPT-based Telegram Bot in [Go](https://go.dev/) using OpenAI's API.
 This bot is just an example of how easy it is to utilize GPT's API. There are way more things you can do besides a chat bot, but this should give you a good and simple overview to start with.
 

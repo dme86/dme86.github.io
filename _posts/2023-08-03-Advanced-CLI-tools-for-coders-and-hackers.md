@@ -1,6 +1,7 @@
 ---
 title: Advanced (CLI) tools for coders & hackers
 layout: post
+tags: [Tutorials]
 ---
 
 > This article is aimed at the advanced coder/hacker and exclusively includes tools that go far beyond the standards such as "bash", "nano", or "git".

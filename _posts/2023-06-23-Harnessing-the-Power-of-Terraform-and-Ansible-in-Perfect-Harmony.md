@@ -88,6 +88,7 @@ You should adhere to your organizational patterns while implementing what suits 
 
 Nevertheless, I'll provide you with an example **playbook.yml** so that you can experiment and explore:
 
+{% raw %}
 ```yaml
 ---
 - name: Create folders in AWS S3 Bucket
@@ -116,6 +117,7 @@ Nevertheless, I'll provide you with an example **playbook.yml** so that you can 
         - bar/
         - baz/
 ```
+{% endraw %}
 
 ## Separation of concerns
 

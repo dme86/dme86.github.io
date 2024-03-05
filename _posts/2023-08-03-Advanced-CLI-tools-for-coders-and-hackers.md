@@ -1,6 +1,6 @@
 ---
-layout: post
 title: Advanced (CLI) tools for coders & hackers
+layout: post
 ---
 
 > This article is aimed at the advanced coder/hacker and exclusively includes tools that go far beyond the standards such as "bash", "nano", or "git".
@@ -9,6 +9,7 @@ I am writing this text because I repeatedly see users struggling with outdated t
 
 If you're working a lot with AWS I recommend visiting their [AWS Labs](https://github.com/awslabs) repo!
 
+<!-- more -->
 
 ## Terminal emulators
 

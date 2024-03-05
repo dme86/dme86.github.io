@@ -1,6 +1,6 @@
 ---
-layout: post
 title: Write an Ansible dynamic inventory for AWS S3
+layout: post
 ---
 
 You may have already read my [former article](https://dme86.github.io/2023/06/23/Harnessing-the-Power-of-Terraform-and-Ansible-in-Perfect-Harmony/), which describes how to use Terraform **together** with Ansible.
@@ -8,6 +8,8 @@ You may have already read my [former article](https://dme86.github.io/2023/06/23
 In this article, I will show you how you can enhance your setup further by writing your own [(dynamic) inventory](https://docs.ansible.com/ansible/latest/dev_guide/developing_inventory.html) file for S3 buckets in Ansible.
 
 Of course, you can create additional inventories; for instance, for Amazon RDS, the fundamentals remain the same, and the process is quite easy and straightforward as well. In this article, I will be utilizing [Ansible Galaxy AWS](https://galaxy.ansible.com/ui/repo/published/amazon/aws/).
+
+<!-- more -->
 
 # aws_s3_inventory.py
 

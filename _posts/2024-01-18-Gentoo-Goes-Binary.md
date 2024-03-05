@@ -1,8 +1,15 @@
+---
+title: Gentoo goes Binary
+layout: page
+---
+
 I was genuinely excited as I read the latest Gentoo news regarding their commitment to [providing more binary packages](https://www.gentoo.org/news/2023/12/29/Gentoo-binary.html) for Gentoo stable.
 
 Gentoo is often referred to as **the** non-binary distribution, where everything must be compiled from source code. For me, this aspect has always been Gentoo's greatest strength and, simultaneously, its most significant weakness. Despite being a fervent Gentoo fan, I find myself resorting to [Arch](https://archlinux.org/) in certain environments because, I must admit, compile times on Gentoo, especially on older hardware, can be quite painful.
 
 This is precisely why Gentoo is now expanding its offering of binary packages on their (mirror) servers. While, for most architectures, this is limited to the core system and weekly updates, it's a different story for **amd64 and arm64**. There, they boast an impressive **>20 GByte of packages** on their mirrors, ranging from LibreOffice to KDE Plasma and from Gnome to Docker. Gentoo stable is updated daily!
+
+<!-- more -->
 
 Despite the newfound convenience, you still retain the flexibility of Gentoo's USE flags. However, if you find yourself running Gentoo on older hardware or simply wish to avoid lengthy builds, such as with qtwebengine, you have the option to expedite the installation process using binaries on a base system. Later, you can switch back to a non-binary installation, although the installation process with binaries is considerably faster, as illustrated in the screenshot I captured during a fresh installation using [emerge](https://wiki.gentoo.org/wiki/Emerge), which predominantly utilized binary packages:
 ![enter image description here](https://i.imgur.com/QtjKALZ.png)

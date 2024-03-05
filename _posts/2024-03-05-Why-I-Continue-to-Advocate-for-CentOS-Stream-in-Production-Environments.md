@@ -9,6 +9,8 @@ It is possible that you encountered similar information and, perhaps, acted upon
 
 This narrative reflects the state of CentOS prior to the aforementioned transformation:
 
+<!-- more -->
+
 
 <div class="mermaid">
 graph LR

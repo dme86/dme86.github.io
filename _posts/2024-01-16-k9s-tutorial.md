@@ -1,4 +1,11 @@
+---
+title: k9s Tutorial
+layout: page
+---
+
 I am excited to introduce an article about k9s, a powerful tool designed for efficient management of kubernetes clusters, whether it be on platforms like EKS or k3s. This tool has significantly enhanced my productivity, allowing me to navigate kubernetes environments, manage pods, and swiftly identify issues with remarkable speed.
+
+<!-- more -->
 
 The speed and efficiency derived from not relying on your mouse for interactions with k9s is remarkable. By solely utilizing your keyboard, you develop muscle memory, resulting in a faster workflow compared to other programs.
 

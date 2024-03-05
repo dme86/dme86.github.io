@@ -1,4 +1,11 @@
-This is my [Lazygit](https://github.com/jesseduffield/lazygit) tutorial, which will help you get an overview of the most important features. It will *speed up your git workflow* and make it **easier** for you. 
+---
+tile: Lazygit tutorial
+layout: post
+---
+
+This is my [Lazygit](https://github.com/jesseduffield/lazygit) tutorial, which will help you get an overview of the most important features. It will *speed up your git workflow* and make it **easier** for you.
+
+<!-- more -->
 
 ![lazygit](https://i.imgur.com/6dig3uj.png)
 
@@ -8,14 +15,14 @@ This is my [Lazygit](https://github.com/jesseduffield/lazygit) tutorial, which w
 
 ## Your first steps
 
-Open Lazygit inside a git repository, press `Tab` to move forward and `Shift + Tab` to move backwards between **panels** on the left side. 
+Open Lazygit inside a git repository, press `Tab` to move forward and `Shift + Tab` to move backwards between **panels** on the left side.
 Use `j` and `k` to move up/down *inside* a panel and `J`, `K` to scroll up/down inside your *main* panel on the right side.
 
-Add a few files to your repository; Lazygit will reload automatically, or if you're pressing `r`. 
+Add a few files to your repository; Lazygit will reload automatically, or if you're pressing `r`.
 
 Now choose those files from the *files* panel to be staged by selecting them (Navigate to the Files panel via `Tab` or `Shift + Tab` (*Or Hotkey `1`*), select a file using `j` or `k`) and press `Space` to toggle the selected file *staged/unstaged*.
 
-Just press `c` to commit your staged files and [write your commit message](https://www.conventionalcommits.org/). 
+Just press `c` to commit your staged files and [write your commit message](https://www.conventionalcommits.org/).
 
 And push your code by pressing `P`.
 
@@ -54,7 +61,7 @@ A Popup Menu will ask you
 
 > Are you sure you want to squash this commit into the commit below?
 
-Just press `Enter` and both commits are now squashed. 
+Just press `Enter` and both commits are now squashed.
 You're able to undo by simple type `Ctrl + z` and `Enter`.
 
 ### Open commit in Browser

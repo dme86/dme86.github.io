@@ -15,6 +15,8 @@ While terraform provided me with a reliable and powerful provisioning tool, I so
 Dependence of development teams on infrastructure teams can lead to increased time and financial costs, deviating from the DevOps philosophy due to the persistence of strong silos.
 Additionally, as my projects expanded, I encountered limitations when attempting to configure changes across multiple AWS services using terraform modules.
 
+<!-- more -->
+
 ## Technical example
 
 Suppose you find yourself managing numerous S3 buckets within your AWS environment. If you provisioned these buckets using Terraform, chances are you either leveraged  [an existing module](https://github.com/terraform-aws-modules/terraform-aws-s3-bucket)  or created your own custom module incorporating the necessary S3 resources.

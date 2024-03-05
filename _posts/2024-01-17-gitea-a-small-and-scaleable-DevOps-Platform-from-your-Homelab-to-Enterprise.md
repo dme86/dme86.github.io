@@ -1,3 +1,8 @@
+---
+title: Gitea - A Small and Scaleable DevOps Platform - From Your Homelab to Enterprise
+layout: page
+---
+
 What I appreciate in software is when it scales efficiently. I dislike overstretched goals and under-delivering on value.
 
 In recent years, GitLab, for example, made numerous promises about features but struggled to deliver on many occasions. Notably, they still lack support for ARM64 (See [Epic](https://gitlab.com/groups/gitlab-org/-/epics/2370)).
@@ -7,6 +12,8 @@ Moreover, in most cases, I've observed that companies don't necessarily need an 
 With Gitea, I get all of this - and more. I can also run it on a Raspberry Pi or configure it for replication on larger machines.
 
 In this article, I'll show you how I installed a simple Gitea test instance on a small server (1 CPU, 1GB RAM) and hosted a runner for CI/CD actions. All of this was set up in **~1h**. For demonstration purposes, I did not dive into TLS or backup topics, and OAuth2 is not included.
+
+<!-- more -->
 
 
 # Installation

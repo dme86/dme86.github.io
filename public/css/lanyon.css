@@ -39,6 +39,13 @@
   border-radius: 50%;
 }
 
+.read-more {
+  display: block;
+  margin-top: 10px;
+  color: #dbd8ce; /* Set the desired color */
+  text-decoration: none;
+}
+
 html,
 body {
   overflow-x: hidden;

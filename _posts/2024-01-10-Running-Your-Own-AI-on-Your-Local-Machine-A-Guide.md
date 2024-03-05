@@ -1,6 +1,12 @@
+---
+title: Running Your Own AI on Your Local Machine - A Guide
+layout: page
+---
 
 In another article, I talked about utilizing [GPT's API to write a Telegram Chat-Bot](https://dme86.github.io/2024/01/10/Write-your-own-GPT-based-Telegram-Assistent/). Now, I will write about using an [LLM](https://en.wikipedia.org/wiki/LLaMA) *like* GPT but on your local machine and for free.
 You can also use it via a modern ChatGPT-styled Web-UI and give your coworkers access to it.
+
+<!-- more -->
 
 I tested this on my Mac, so I could install ollama via `brew install ollama`, but they have [downloads](https://ollama.ai/download) available for Linux and Windows too.
 

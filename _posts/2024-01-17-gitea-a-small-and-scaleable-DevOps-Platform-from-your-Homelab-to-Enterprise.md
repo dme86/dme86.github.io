@@ -1,6 +1,6 @@
 ---
 title: Gitea - A Small and Scaleable DevOps Platform - From Your Homelab to Enterprise
-layout: page
+layout: post
 tags: [Tutorials]
 ---
 

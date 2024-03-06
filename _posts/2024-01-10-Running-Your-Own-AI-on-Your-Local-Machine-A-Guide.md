@@ -1,6 +1,6 @@
 ---
 title: Running Your Own AI on Your Local Machine - A Guide
-layout: page
+layout: post
 tags: [AI]
 ---
 

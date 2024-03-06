@@ -1,6 +1,6 @@
 ---
 title: k9s Tutorial
-layout: page
+layout: post
 tags: [Tutorials]
 ---
 

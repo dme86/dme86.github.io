@@ -1,6 +1,6 @@
 ---
 title: Gentoo goes Binary
-layout: page
+layout: post
 tags: [Linux, Gentoo]
 ---
 

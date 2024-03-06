@@ -1,6 +1,6 @@
 ---
-layout: post
 title: Harnessing the Power of Terraform and Ansible in Perfect Harmony
+layout: post
 tags: [Ansible, Terraform]
 ---
 

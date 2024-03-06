@@ -1,6 +1,6 @@
 ---
 title: Write Your Own GPT based Telegram Assistent
-layout: page
+layout: post
 tags: [AI]
 ---
 

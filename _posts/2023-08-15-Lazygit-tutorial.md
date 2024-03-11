@@ -27,18 +27,25 @@ Just press `c` to commit your staged files and [write your commit message](https
 
 And push your code by pressing `P`.
 
+If you don't need to have the git messages and the "*Press enter to return to lazygit*" call you can add this into your `~/.config/lazygit/config.yml`:
+
+    promptToReturnFromSubprocess: false
+
 > You can use `a` to stage/unstage **all** files - be careful with this because Lazygit will not remember your selected files via `Space`.
 
-You're able to stage individual hunks/lines from a file by selecting the file and pressing `Enter`.
+You're able to stage *individual hunks/lines* from a file by selecting the file and pressing `Enter`.
 This will split your main panel into "*Unstaged/Staged*" view.
+
 Again, you're able to use vim commands `j` and `k` to move through your hunks/lines, select them by pressing `Space`, press `Tab` to toggle between "*Unstaged/Staged*" view.
+
 If you want to go back to your files panel, just press `ESC`.
 
 > You're able to scroll via `J`, `K`.
 
 To create a [Tag](https://git-scm.com/book/en/v2/Git-Basics-Tagging) just press `T` on your *commits* panel (*Hotkey 4*).
 
-With staged changes in your files panel, you can amend it to *any* commit you selected it with `A`. Amending commits earlier than the latest commit will result in Lazygit doing a rebase for you.
+With staged changes in your files panel, you can amend it to *any* commit you selected it with `A`.
+Amending commits earlier than the latest commit will result in Lazygit doing a rebase for you.
 
 You can edit the commit message with `r`, or with your external editor using `R`.
 
@@ -75,3 +82,4 @@ A highly useful and convenient feature is the ability to directly open the selec
 Navigate to your Branches Menu and type `n` to create a new branch. To rename it, press `R` while the branch is selected.
 
 To explore the commits of a branch without switching to it, use `Enter`. You can drill down into individual commits with `Enter` again, or move back up with `ESC`.
+

@@ -6,6 +6,8 @@ tags: [Tutorials]
 
 In this brief tutorial, we’ll walk through how to deploy a simple load-balanced application using k3d, a lightweight Kubernetes distribution. This guide will help you set up port mappings and create a basic deployment in just a few minutes.
 
+<!-- more -->
+
 Currently, I’m working at an AI startup, where we’re building our core infrastructure around Kubernetes. For local development, I’ve chosen k3d due to its lightweight setup, ease of use, and speed, making it ideal for rapid experimentation and testing.
 
 ## Step 1: Reset k3d

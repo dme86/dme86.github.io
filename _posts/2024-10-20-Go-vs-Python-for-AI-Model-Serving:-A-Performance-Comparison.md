@@ -17,7 +17,9 @@ Python is the dominant language for AI development due to its rich libraries, li
 However, Python's interpreted nature results in slower execution and higher memory consumption compared to Go. This becomes especially noticeable when scaling an application to handle many requests, such as in a model-serving scenario.
 
 
-#### Why Go for Model Serving?
+
+### Why Go for Model Serving?
+
 
 Go’s strengths lie in its speed, concurrency, and memory efficiency. It’s compiled and optimized for handling many requests at once, making it a powerful choice for production-level model serving. For applications that need to serve ML predictions to thousands of users, Go is an excellent fit due to its lower latency and better scalability.
 

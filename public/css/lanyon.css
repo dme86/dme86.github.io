@@ -106,6 +106,10 @@ h1, h2, h3, h4, h5, h6 {
  * Super small header above the content for site name and short description.
  */
 
+html {
+  --masthead-offset: 4.9rem;
+}
+
 .masthead {
   position: fixed;
   top: 0;
@@ -119,7 +123,7 @@ h1, h2, h3, h4, h5, h6 {
   border-bottom: 1px solid #eee;
 }
 .wrap {
-  padding-top: 4.9rem;
+  padding-top: var(--masthead-offset);
 }
 .masthead-content {
   display: flex;
@@ -179,9 +183,6 @@ h1, h2, h3, h4, h5, h6 {
 @media (max-width: 48em) {
   .masthead {
     min-height: 96px;
-  }
-  .wrap {
-    padding-top: 5.9rem;
   }
   .masthead-content {
     align-items: center;
@@ -803,7 +804,7 @@ a.sidebar-nav-item:focus {
 }
 .post-header {
   position: sticky;
-  top: 5rem;
+  top: calc(var(--masthead-offset) + .35rem);
   z-index: 15;
   margin-bottom: 1.4rem;
   padding: .85rem 0 .7rem;
@@ -828,7 +829,6 @@ a.sidebar-nav-item:focus {
 
 @media (max-width: 48em) {
   .post-header {
-    top: 6.15rem;
     padding-top: .7rem;
   }
 }

@@ -2,6 +2,7 @@
   var toggle = document.querySelector('.sidebar-toggle');
   var sidebar = document.querySelector('#sidebar');
   var checkbox = document.querySelector('#sidebar-checkbox');
+  var masthead = document.querySelector('.masthead');
   var scrollTopButton = document.querySelector('#scroll-top');
   var scrollTopProgress = document.querySelector('#scroll-top-progress');
   var articleWordCount = document.querySelector('#word-count');
@@ -102,6 +103,12 @@
     });
   }
 
+  function syncMastheadOffset() {
+    if (!masthead) return;
+
+    document.documentElement.style.setProperty('--masthead-offset', masthead.offsetHeight + 'px');
+  }
+
   function toggleScrollTopButton() {
     if (!scrollTopButton) return;
 
@@ -146,6 +153,12 @@
 
     checkbox.checked = false;
   }, false);
+
+  if (masthead) {
+    syncMastheadOffset();
+    window.addEventListener('resize', syncMastheadOffset);
+    window.addEventListener('load', syncMastheadOffset);
+  }
 
   if (scrollTopButton) {
     scrollTopButton.addEventListener('click', function() {

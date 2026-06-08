@@ -4,7 +4,8 @@
   var checkbox = document.querySelector('#sidebar-checkbox');
   var scrollTopButton = document.querySelector('#scroll-top');
   var scrollTopProgress = document.querySelector('#scroll-top-progress');
-  var post = document.querySelector('.post');
+  var articleWordCount = document.querySelector('#word-count');
+  var post = articleWordCount ? document.querySelector('.post') : null;
   var links = document.querySelectorAll('a[href]');
   var codeBlocks = document.querySelectorAll('pre');
 

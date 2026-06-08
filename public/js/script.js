@@ -3,6 +3,8 @@
   var sidebar = document.querySelector('#sidebar');
   var checkbox = document.querySelector('#sidebar-checkbox');
   var scrollTopButton = document.querySelector('#scroll-top');
+  var scrollTopProgress = document.querySelector('#scroll-top-progress');
+  var post = document.querySelector('.post');
   var links = document.querySelectorAll('a[href]');
 
   function markExternalLinks() {
@@ -38,6 +40,27 @@
     }
   }
 
+  function updateReadingProgress() {
+    if (!scrollTopButton || !scrollTopProgress || !post) return;
+
+    var articleTop = post.offsetTop;
+    var articleHeight = post.offsetHeight;
+    var viewportOffset = window.innerHeight * 0.3;
+    var distance = window.scrollY + viewportOffset - articleTop;
+    var progress = Math.round((distance / articleHeight) * 100);
+
+    if (progress < 0) {
+      progress = 0;
+    }
+
+    if (progress > 100) {
+      progress = 100;
+    }
+
+    scrollTopProgress.textContent = progress + '%';
+    scrollTopButton.classList.add('has-progress');
+  }
+
   document.addEventListener('click', function(e) {
     var target = e.target;
 
@@ -54,7 +77,9 @@
     });
 
     window.addEventListener('scroll', toggleScrollTopButton, { passive: true });
+    window.addEventListener('scroll', updateReadingProgress, { passive: true });
     toggleScrollTopButton();
+    updateReadingProgress();
   }
 
   markExternalLinks();

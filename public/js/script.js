@@ -3,6 +3,30 @@
   var sidebar = document.querySelector('#sidebar');
   var checkbox = document.querySelector('#sidebar-checkbox');
   var scrollTopButton = document.querySelector('#scroll-top');
+  var links = document.querySelectorAll('a[href]');
+
+  function markExternalLinks() {
+    links.forEach(function(link) {
+      var href = link.getAttribute('href');
+
+      if (!href || href.charAt(0) === '#' || href.indexOf('mailto:') === 0 || href.indexOf('tel:') === 0) {
+        return;
+      }
+
+      var url;
+
+      try {
+        url = new URL(link.href, window.location.origin);
+      } catch (error) {
+        return;
+      }
+
+      if (url.origin !== window.location.origin) {
+        link.setAttribute('target', '_blank');
+        link.setAttribute('rel', 'noopener noreferrer');
+      }
+    });
+  }
 
   function toggleScrollTopButton() {
     if (!scrollTopButton) return;
@@ -32,4 +56,6 @@
     window.addEventListener('scroll', toggleScrollTopButton, { passive: true });
     toggleScrollTopButton();
   }
+
+  markExternalLinks();
 })(document);

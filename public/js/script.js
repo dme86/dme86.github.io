@@ -7,6 +7,8 @@
   var scrollTopProgress = document.querySelector('#scroll-top-progress');
   var articleWordCount = document.querySelector('#word-count');
   var post = articleWordCount ? document.querySelector('.post') : null;
+  var postHeaderShell = document.querySelector('#post-header-shell');
+  var postHeader = document.querySelector('#post-header');
   var links = document.querySelectorAll('a[href]');
   var codeBlocks = document.querySelectorAll('pre');
 
@@ -109,6 +111,26 @@
     document.documentElement.style.setProperty('--masthead-offset', masthead.offsetHeight + 'px');
   }
 
+  function syncFixedPostHeader() {
+    if (!postHeader || !postHeaderShell || !masthead) return;
+
+    var shellRect = postHeaderShell.getBoundingClientRect();
+    var mastheadHeight = masthead.offsetHeight;
+    var fixedTop = mastheadHeight + 6;
+    var headerHeight = postHeader.offsetHeight;
+    var shouldFix = shellRect.top <= fixedTop && shellRect.bottom > fixedTop + headerHeight;
+
+    if (shouldFix) {
+      document.documentElement.style.setProperty('--post-header-left', shellRect.left + 'px');
+      document.documentElement.style.setProperty('--post-header-width', shellRect.width + 'px');
+      postHeaderShell.style.height = headerHeight + 'px';
+      postHeader.classList.add('is-fixed');
+    } else {
+      postHeader.classList.remove('is-fixed');
+      postHeaderShell.style.height = '';
+    }
+  }
+
   function toggleScrollTopButton() {
     if (!scrollTopButton) return;
 
@@ -169,6 +191,13 @@
     window.addEventListener('scroll', updateReadingProgress, { passive: true });
     toggleScrollTopButton();
     updateReadingProgress();
+  }
+
+  if (postHeader && postHeaderShell) {
+    window.addEventListener('scroll', syncFixedPostHeader, { passive: true });
+    window.addEventListener('resize', syncFixedPostHeader);
+    window.addEventListener('load', syncFixedPostHeader);
+    syncFixedPostHeader();
   }
 
   installCopyButtons();

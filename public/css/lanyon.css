@@ -802,16 +802,24 @@ a.sidebar-nav-item:focus {
 .post-title a {
   color: #303030;
 }
-.post-header {
-  position: sticky;
-  top: calc(var(--masthead-offset) + .35rem);
-  z-index: 15;
+.post-header-shell {
+  position: relative;
   margin-bottom: 1.4rem;
+}
+.post-header {
   padding: .85rem 0 .7rem;
   background: rgba(255,255,255,.96);
   border-bottom: 1px solid #eef2f5;
   -webkit-backdrop-filter: blur(10px);
           backdrop-filter: blur(10px);
+}
+.post-header.is-fixed {
+  position: fixed;
+  top: calc(var(--masthead-offset) + .35rem);
+  left: var(--post-header-left, 0);
+  z-index: 19;
+  width: var(--post-header-width, auto);
+  box-shadow: 0 10px 18px rgba(15, 23, 42, .05);
 }
 .page-title,
 .post-title {
@@ -830,6 +838,9 @@ a.sidebar-nav-item:focus {
 @media (max-width: 48em) {
   .post-header {
     padding-top: .7rem;
+  }
+  .post-header.is-fixed {
+    top: calc(var(--masthead-offset) + .25rem);
   }
 }
 

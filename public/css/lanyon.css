@@ -325,6 +325,44 @@ a.sidebar-nav-item:focus {
   background: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='%23fff' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' d='M2.5 11.5A.5.5 0 013 11h10a.5.5 0 010 1H3a.5.5 0 01-.5-.5zm0-4A.5.5 0 013 7h10a.5.5 0 010 1H3a.5.5 0 01-.5-.5zm0-4A.5.5 0 013 3h10a.5.5 0 010 1H3a.5.5 0 01-.5-.5z' clip-rule='evenodd'/%3E%3C/svg%3E") no-repeat;
 }
 
+.scroll-top {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 30;
+  padding: .45rem .7rem;
+  font-family: "PT Sans", Helvetica, Arial, sans-serif;
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #5e6f80;
+  background: rgba(255,255,255,.96);
+  border: 1px solid #dbe3ea;
+  border-radius: 999px;
+  box-shadow: 0 10px 22px rgba(15, 23, 42, .1);
+  cursor: pointer;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity .2s ease, transform .2s ease, visibility .2s ease, color .2s ease, border-color .2s ease;
+  transform: translateY(.4rem);
+}
+
+.scroll-top.is-visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateY(0);
+}
+
+.scroll-top:hover,
+.scroll-top:focus {
+  color: #324252;
+  border-color: #c5d2df;
+  text-decoration: none;
+}
+
 @media (min-width: 30.1em) {
   .sidebar-toggle {
     position: fixed;
@@ -332,7 +370,8 @@ a.sidebar-nav-item:focus {
 }
 
 @media print {
-  .sidebar-toggle {
+  .sidebar-toggle,
+  .scroll-top {
     display: none;
   }
 }

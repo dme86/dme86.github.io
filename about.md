@@ -10,7 +10,7 @@ title: About
     </div>
 
     <div class="about-hero-copy">
-      <p class="about-kicker">Professional Profile</p>
+      <p class="about-kicker">Infrastructure, Linux, and Automation</p>
       <h2 class="about-heading">Senior IT professional with a systems, infrastructure, and automation focus.</h2>
       <p class="about-lede">
         I have spent more than 16 years working across Linux, infrastructure, cloud platforms, CI/CD, automation,

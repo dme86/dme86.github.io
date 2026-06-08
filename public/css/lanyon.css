@@ -110,18 +110,22 @@ h1, h2, h3, h4, h5, h6 {
   position: fixed;
   top: 0;
   width: 100%;
-  height: 55px;
+  min-height: 78px;
   z-index: 20;
   background: #fff;
-  padding-top:    1rem;
-  padding-bottom: 1rem;
+  padding-top: .9rem;
+  padding-bottom: .9rem;
   margin-bottom: 3rem;
   border-bottom: 1px solid #eee;
 }
 .wrap {
-  padding-top: 5.5rem;
+  padding-top: 7rem;
 }
 .masthead-content {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
   background: #fff;
   -webkit-transition: -webkit-transform .3s ease-in-out;
           transition: transform .3s ease-in-out;
@@ -129,27 +133,73 @@ h1, h2, h3, h4, h5, h6 {
       -ms-backface-visibility: hidden;
           backface-visibility: hidden;
 }
+.masthead-brand {
+  min-width: 0;
+}
 .masthead-title {
   margin-top: 0;
-  margin-bottom: 0;
+  margin-bottom: .2rem;
   color: #505050;
+  font-size: 1.1rem;
+  line-height: 1.1;
 }
 .masthead-title a {
-  color: #505050;
+  color: #2f3b46;
 }
-.masthead-title small {
-  font-size: 75%;
+.masthead-tagline {
+  display: block;
+  font-family: "PT Sans", Helvetica, Arial, sans-serif;
+  font-size: .7rem;
   font-weight: 400;
-  color: #c0c0c0;
-  letter-spacing: 0;
+  color: #7d8a96;
+  letter-spacing: .02em;
+  line-height: 1.35;
+}
+.masthead-nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: .6rem;
+  padding-top: .1rem;
+  font-family: "PT Sans", Helvetica, Arial, sans-serif;
+}
+.masthead-nav a {
+  font-size: .68rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #7a8794;
+}
+.masthead-nav a:hover,
+.masthead-nav a:focus {
+  color: #3e4f5e;
+  text-decoration: none;
 }
 
 @media (max-width: 48em) {
-  .masthead-title {
+  .masthead {
+    min-height: 96px;
+  }
+  .wrap {
+    padding-top: 8rem;
+  }
+  .masthead-content {
+    align-items: center;
+    flex-direction: column;
+    gap: .35rem;
+  }
+  .masthead-brand {
     text-align: center;
   }
-  .masthead-title small {
-    display: none;
+  .masthead-title {
+    margin-bottom: .15rem;
+    text-align: center;
+  }
+  .masthead-tagline {
+    display: block;
+  }
+  .masthead-nav {
+    justify-content: center;
   }
 }
 

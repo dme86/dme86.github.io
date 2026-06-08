@@ -11,10 +11,18 @@
 
     <div class="masthead">
       <div class="container masthead-content">
-        <h3 class="masthead-title">
-          <a href="{{ site.baseurl }}/" title="Home">{{ site.title }}</a>
-          <small>{{ site.tagline }}</small>
-        </h3>
+        <div class="masthead-brand">
+          <h3 class="masthead-title">
+            <a href="{{ site.baseurl }}/" title="Home">Daniel Meier</a>
+          </h3>
+          <small class="masthead-tagline">Infrastructure, Linux, automation, and operational engineering</small>
+        </div>
+
+        <nav class="masthead-nav" aria-label="Primary">
+          <a href="{{ '/topics/' | absolute_url }}">Topics</a>
+          <a href="{{ '/about/' | absolute_url }}">About</a>
+          <a href="https://www.linkedin.com/in/dmeier86/" rel="me">LinkedIn</a>
+        </nav>
       </div>
     </div>
 

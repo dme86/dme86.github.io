@@ -6,6 +6,77 @@
   var scrollTopProgress = document.querySelector('#scroll-top-progress');
   var post = document.querySelector('.post');
   var links = document.querySelectorAll('a[href]');
+  var codeBlocks = document.querySelectorAll('pre');
+
+  function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+      return navigator.clipboard.writeText(text);
+    }
+
+    return new Promise(function(resolve, reject) {
+      var textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.setAttribute('readonly', '');
+      textArea.style.position = 'absolute';
+      textArea.style.left = '-9999px';
+      document.body.appendChild(textArea);
+      textArea.select();
+
+      try {
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        resolve();
+      } catch (error) {
+        document.body.removeChild(textArea);
+        reject(error);
+      }
+    });
+  }
+
+  function installCopyButtons() {
+    codeBlocks.forEach(function(pre) {
+      var wrapper = pre.parentElement;
+
+      if (!wrapper || wrapper.classList.contains('code-block')) {
+        return;
+      }
+
+      if (wrapper.classList.contains('highlight')) {
+        wrapper.classList.add('code-block');
+      } else {
+        wrapper = document.createElement('div');
+        wrapper.className = 'code-block';
+        pre.parentNode.insertBefore(wrapper, pre);
+        wrapper.appendChild(pre);
+      }
+
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'code-copy-button';
+      button.setAttribute('aria-label', 'Copy code');
+      button.textContent = 'Copy';
+
+      button.addEventListener('click', function() {
+        copyText(pre.innerText).then(function() {
+          button.textContent = 'Copied';
+          button.classList.add('is-copied');
+
+          window.setTimeout(function() {
+            button.textContent = 'Copy';
+            button.classList.remove('is-copied');
+          }, 1400);
+        }).catch(function() {
+          button.textContent = 'Error';
+
+          window.setTimeout(function() {
+            button.textContent = 'Copy';
+          }, 1400);
+        });
+      });
+
+      wrapper.appendChild(button);
+    });
+  }
 
   function markExternalLinks() {
     links.forEach(function(link) {
@@ -82,5 +153,6 @@
     updateReadingProgress();
   }
 
+  installCopyButtons();
   markExternalLinks();
 })(document);

@@ -7,7 +7,6 @@
   var articleWordCount = document.querySelector('#word-count');
   var post = articleWordCount ? document.querySelector('.post') : null;
   var postHeader = document.querySelector('.post-header');
-  var floatingPostHeader = document.querySelector('#post-floating-header');
   var links = document.querySelectorAll('a[href]');
   var codeBlocks = document.querySelectorAll('pre');
 
@@ -139,16 +138,16 @@
     scrollTopButton.classList.add('has-progress');
   }
 
-  function toggleFloatingPostHeader() {
-    if (!postHeader || !floatingPostHeader) return;
+  function toggleStickyPostHeader() {
+    if (!postHeader) return;
 
-    var headerBottom = postHeader.getBoundingClientRect().bottom;
+    var headerTop = postHeader.getBoundingClientRect().top;
     var stickyOffset = window.innerWidth <= 768 ? 92 : 76;
 
-    if (headerBottom <= stickyOffset) {
-      floatingPostHeader.classList.add('is-visible');
+    if (headerTop <= stickyOffset + 1) {
+      postHeader.classList.add('is-condensed');
     } else {
-      floatingPostHeader.classList.remove('is-visible');
+      postHeader.classList.remove('is-condensed');
     }
   }
 
@@ -173,10 +172,10 @@
     updateReadingProgress();
   }
 
-  if (floatingPostHeader) {
-    window.addEventListener('scroll', toggleFloatingPostHeader, { passive: true });
-    window.addEventListener('resize', toggleFloatingPostHeader);
-    toggleFloatingPostHeader();
+  if (postHeader) {
+    window.addEventListener('scroll', toggleStickyPostHeader, { passive: true });
+    window.addEventListener('resize', toggleStickyPostHeader);
+    toggleStickyPostHeader();
   }
 
   installCopyButtons();

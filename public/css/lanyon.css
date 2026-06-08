@@ -802,49 +802,33 @@ a.sidebar-nav-item:focus {
   color: #303030;
 }
 .post-header {
-  margin-bottom: 1.4rem;
-}
-.post-floating-header {
-  position: fixed;
+  position: sticky;
   top: 4.25rem;
-  left: 50%;
-  z-index: 18;
-  width: min(38rem, calc(100vw - 2rem));
-  padding: .55rem .85rem;
+  z-index: 15;
+  margin-bottom: 1.4rem;
+  padding: .85rem 0 .7rem;
   background: rgba(255,255,255,.96);
-  border: 1px solid #e7edf2;
-  border-radius: .8rem;
-  box-shadow: 0 12px 24px rgba(15, 23, 42, .08);
+  border-bottom: 1px solid transparent;
+  transition: padding .18s ease, border-color .18s ease, box-shadow .18s ease;
   -webkit-backdrop-filter: blur(10px);
           backdrop-filter: blur(10px);
-  opacity: 0;
-  visibility: hidden;
-  transform: translate(-50%, -.35rem);
-  pointer-events: none;
-  transition: opacity .18s ease, transform .18s ease, visibility .18s ease;
 }
-.post-floating-header.is-visible {
-  opacity: 1;
-  visibility: visible;
-  transform: translate(-50%, 0);
+.post-header.is-condensed {
+  padding-top: .55rem;
+  padding-bottom: .45rem;
+  border-bottom-color: #e7edf2;
+  box-shadow: 0 10px 18px rgba(15, 23, 42, .05);
 }
-.post-floating-title {
+.post-header.is-condensed .post-title {
   overflow: hidden;
-  font-family: "PT Sans", Helvetica, Arial, sans-serif;
-  font-size: .88rem;
-  font-weight: 700;
-  color: #2f3b46;
+  margin-bottom: .25rem;
+  font-size: 1.25rem;
+  line-height: 1.15;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.post-floating-meta {
-  overflow: hidden;
-  margin-top: .12rem;
-  font-family: "PT Sans", Helvetica, Arial, sans-serif;
-  font-size: .68rem;
-  color: #7a8794;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.post-header.is-condensed .post-date {
+  margin-bottom: 0;
 }
 .page-title,
 .post-title {
@@ -861,16 +845,12 @@ a.sidebar-nav-item:focus {
 }
 
 @media (max-width: 48em) {
-  .post-floating-header {
+  .post-header {
     top: 5.15rem;
-    width: calc(100vw - 1rem);
-    padding: .5rem .7rem;
+    padding-top: .7rem;
   }
-  .post-floating-title {
-    font-size: .8rem;
-  }
-  .post-floating-meta {
-    font-size: .64rem;
+  .post-header.is-condensed .post-title {
+    font-size: 1.02rem;
   }
 }
 

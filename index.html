@@ -5,6 +5,8 @@ title: Home
 
 <div class="posts">
   {% for post in paginator.posts %}
+  {% assign word_count = post.content | markdownify | strip_html | number_of_words %}
+  {% assign read_time = word_count | minus: 1 | divided_by: 200 | plus: 1 %}
   <div class="post">
     <h1 class="post-title">
       <a href="{{ post.url | absolute_url }}">
@@ -12,7 +14,7 @@ title: Home
       </a>
     </h1>
 
-    <span class="post-date">{{ post.date | date_to_string }}</span>
+    <span class="post-date">{{ post.date | date_to_string }} | {{ word_count }} words &middot; {{ read_time }} min read</span>
 
     {{ post.excerpt }}
     <a href="{{ post.url | absolute_url }}" class="read-more">Read more</a>

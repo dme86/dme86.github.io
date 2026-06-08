@@ -1,7 +1,7 @@
 ---
 title: Routing All macOS Traffic Through the Tor Network
 layout: post
-tags: [Tutorial]
+tags: [Tutorials]
 ---
 
 For certain tasks, I need to use macOS and sometimes prefer to route all my traffic through the [Tor network](https://www.torproject.org/). In this tutorial, I will guide you through the process.
@@ -47,4 +47,3 @@ brew services stop tor
 ```
 
 **Note:** After stopping Tor, remember to disable the SOCKS Proxy in your Network Settings to resume browsing without Tor.
-

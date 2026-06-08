@@ -117,15 +117,19 @@
 
     var articleTop = post.offsetTop;
     var articleHeight = post.offsetHeight;
+    var articleBottom = articleTop + articleHeight;
     var viewportOffset = window.innerHeight * 0.3;
     var distance = window.scrollY + viewportOffset - articleTop;
     var progress = Math.round((distance / articleHeight) * 100);
+    var viewportBottom = window.scrollY + window.innerHeight;
 
     if (progress < 0) {
       progress = 0;
     }
 
-    if (progress > 100) {
+    if (viewportBottom >= articleBottom) {
+      progress = 100;
+    } else if (progress > 100) {
       progress = 100;
     }
 

@@ -3,39 +3,116 @@ layout: page
 title: About
 ---
 
-## Welcome to My blog!
+<div class="about-page">
+  <section class="about-hero">
+    <div class="about-hero-photo">
+      <img src="https://avatars.githubusercontent.com/u/55982839?v=4" alt="Dan" width="150" class="rounded-image" />
+    </div>
 
-Hello, and welcome to my blog 👋! I'm Dan, a passionate DevOps Engineer with a strong interest in open source and cloud development. This blog is my space to share my experiences, insights, and knowledge in the world of DevOps, as well as my adventures in the realm of Ansible, Terraform, CI, and AWS.
+    <div class="about-hero-copy">
+      <p class="about-kicker">Professional Profile</p>
+      <h2 class="about-heading">Senior IT professional with a systems, infrastructure, and automation focus.</h2>
+      <p class="about-lede">
+        I have spent more than 16 years working across Linux, infrastructure, cloud platforms, CI/CD, automation,
+        and operational engineering. My work is broader than the usual "DevOps" label and centers on building
+        systems that are reliable, understandable, and durable in production.
+      </p>
 
-### Who Am I?
+      <div class="about-skill-pills">
+        <span>Linux</span>
+        <span>Automation</span>
+        <span>Platform Engineering</span>
+        <span>Cloud</span>
+        <span>CI/CD</span>
+        <span>Reliability</span>
+      </div>
+    </div>
+  </section>
 
-<div align="center">
-  <img src="https://avatars.githubusercontent.com/u/55982839?v=4" alt="Dan" width="150" class="rounded-image" />
+  <section class="about-panel">
+    <p class="about-section-kicker">Profile</p>
+    <h3>What I bring</h3>
+    <p>
+      My background spans infrastructure, tooling, architecture, reliability, and the practical realities of running
+      technology in production. I care about reducing unnecessary complexity, improving resilience, automating
+      repeatable work, and leaving environments easier to operate over time.
+    </p>
+    <p>
+      I am most comfortable where technical depth, operational ownership, and engineering judgment need to come
+      together, especially in environments where systems have to be both effective and maintainable under pressure.
+    </p>
+  </section>
+
+  <section class="about-panel">
+    <p class="about-section-kicker">Core Areas</p>
+    <h3>What I work on</h3>
+    <div class="about-card-grid">
+      <article class="about-card">
+        <h4>Linux And Systems</h4>
+        <p>Production environments, troubleshooting, platform stability, and systems work grounded in operational clarity.</p>
+      </article>
+      <article class="about-card">
+        <h4>Automation And IaC</h4>
+        <p>Ansible, Terraform, and repeatable infrastructure workflows that reduce drift and improve consistency.</p>
+      </article>
+      <article class="about-card">
+        <h4>Platform And Cloud</h4>
+        <p>Delivery foundations, deployment patterns, and infrastructure decisions that support long-term operability.</p>
+      </article>
+      <article class="about-card">
+        <h4>CI/CD And Enablement</h4>
+        <p>Practical delivery pipelines that help teams move faster without losing reliability, control, or visibility.</p>
+      </article>
+      <article class="about-card">
+        <h4>Operations And Resilience</h4>
+        <p>Observability, failure handling, and systems that remain understandable when they are under real stress.</p>
+      </article>
+      <article class="about-card">
+        <h4>Security-Minded Workflows</h4>
+        <p>Operational practices and technical decisions that improve security without turning systems into bureaucracy.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="about-panel">
+    <p class="about-section-kicker">Working Principles</p>
+    <h3>How I think</h3>
+    <div class="about-principles">
+      <div class="about-principle">
+        <strong>Clarity over complexity.</strong>
+        <p>Good systems should be understandable by the people who need to run, debug, and improve them.</p>
+      </div>
+      <div class="about-principle">
+        <strong>Reliability over cleverness.</strong>
+        <p>I value engineering decisions that hold up in production more than decisions that merely look sophisticated.</p>
+      </div>
+      <div class="about-principle">
+        <strong>Automation where it pays off.</strong>
+        <p>Automation should remove repeated effort, reduce mistakes, and create more predictable operating conditions.</p>
+      </div>
+      <div class="about-principle">
+        <strong>Operability matters.</strong>
+        <p>A system is only good if it can be maintained, observed, and trusted when conditions stop being ideal.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="about-panel">
+    <p class="about-section-kicker">This Blog</p>
+    <h3>What you will find here</h3>
+    <p>
+      I use this site to write about infrastructure, Linux, automation, platform work, cloud systems,
+      security-minded operations, and the tradeoffs behind engineering decisions. The goal is not to repeat
+      vendor messaging or generic best practices, but to document approaches that remain useful in real environments.
+    </p>
+  </section>
+
+  <section class="about-panel about-contact">
+    <p class="about-section-kicker">Contact</p>
+    <h3>Get in touch</h3>
+    <p>
+      If you want to connect professionally, you can find me on
+      <a href="https://www.linkedin.com/in/dmeier86/">LinkedIn</a>.
+    </p>
+  </section>
 </div>
-
-As a DevOps Engineer, I've spent 16 years working in various IT roles, and I've become deeply fascinated by the concept of breaking down the barriers between development and operations. I believe in the power of automation and the transformative effect it has on software delivery and infrastructure management. My journey has led me to explore the vast landscape of DevOps tools and practices, with a particular focus on Ansible, Terraform, CI/CD pipelines, and Amazon Web Services (AWS).
-
-### Why This Blog?
-
-Through this blog, I aim to contribute to the vibrant DevOps community by sharing my firsthand experiences, best practices, tips, and tricks. I want to help fellow engineers and enthusiasts navigate the ever-evolving landscape of open-source technologies and cloud development.
-
-### What to Expect?
-
-Here's what you can expect from this blog:
-
-1.  **Tutorials and How-Tos:** Step-by-step guides to help you get started with Ansible, Terraform, CI, AWS, and other exciting tools in the DevOps toolkit.
-
-2.  **Deep Dives:** In-depth explorations of advanced topics, providing you with a comprehensive understanding of key concepts and techniques.
-
-3.  **Problem-Solving:** Real-world scenarios and solutions to common challenges faced by DevOps practitioners.
-
-4.  **News and Updates:** Stay up-to-date with the latest developments in the DevOps ecosystem, open-source projects, and cloud technologies.
-
-
-### Contact Me
-
-If you'd like to get in touch with me, whether it's for collaboration, feedback, or just to say hello, you can reach me through [linkedIn](https://www.linkedin.com/in/dmeier86/). I'm always open to new opportunities and conversations!
-
-Thank you for visiting my blog, and I hope you find the content here both valuable and enjoyable. Happy reading and happy DevOps-ing!
-
-Dan

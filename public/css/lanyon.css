@@ -803,32 +803,14 @@ a.sidebar-nav-item:focus {
 }
 .post-header {
   position: sticky;
-  top: 4.25rem;
+  top: 5rem;
   z-index: 15;
   margin-bottom: 1.4rem;
   padding: .85rem 0 .7rem;
   background: rgba(255,255,255,.96);
-  border-bottom: 1px solid transparent;
-  transition: padding .18s ease, border-color .18s ease, box-shadow .18s ease;
+  border-bottom: 1px solid #eef2f5;
   -webkit-backdrop-filter: blur(10px);
           backdrop-filter: blur(10px);
-}
-.post-header.is-condensed {
-  padding-top: .55rem;
-  padding-bottom: .45rem;
-  border-bottom-color: #e7edf2;
-  box-shadow: 0 10px 18px rgba(15, 23, 42, .05);
-}
-.post-header.is-condensed .post-title {
-  overflow: hidden;
-  margin-bottom: .25rem;
-  font-size: 1.25rem;
-  line-height: 1.15;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.post-header.is-condensed .post-date {
-  margin-bottom: 0;
 }
 .page-title,
 .post-title {
@@ -846,11 +828,8 @@ a.sidebar-nav-item:focus {
 
 @media (max-width: 48em) {
   .post-header {
-    top: 5.15rem;
+    top: 6.15rem;
     padding-top: .7rem;
-  }
-  .post-header.is-condensed .post-title {
-    font-size: 1.02rem;
   }
 }
 

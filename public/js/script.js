@@ -6,7 +6,6 @@
   var scrollTopProgress = document.querySelector('#scroll-top-progress');
   var articleWordCount = document.querySelector('#word-count');
   var post = articleWordCount ? document.querySelector('.post') : null;
-  var postHeader = document.querySelector('.post-header');
   var links = document.querySelectorAll('a[href]');
   var codeBlocks = document.querySelectorAll('pre');
 
@@ -138,19 +137,6 @@
     scrollTopButton.classList.add('has-progress');
   }
 
-  function toggleStickyPostHeader() {
-    if (!postHeader) return;
-
-    var headerTop = postHeader.getBoundingClientRect().top;
-    var stickyOffset = window.innerWidth <= 768 ? 92 : 76;
-
-    if (headerTop <= stickyOffset + 1) {
-      postHeader.classList.add('is-condensed');
-    } else {
-      postHeader.classList.remove('is-condensed');
-    }
-  }
-
   document.addEventListener('click', function(e) {
     var target = e.target;
 
@@ -170,12 +156,6 @@
     window.addEventListener('scroll', updateReadingProgress, { passive: true });
     toggleScrollTopButton();
     updateReadingProgress();
-  }
-
-  if (postHeader) {
-    window.addEventListener('scroll', toggleStickyPostHeader, { passive: true });
-    window.addEventListener('resize', toggleStickyPostHeader);
-    toggleStickyPostHeader();
   }
 
   installCopyButtons();

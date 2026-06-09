@@ -13,6 +13,7 @@
   var searchResults = document.querySelector('#search-results');
   var searchMeta = document.querySelector('#search-meta');
   var searchIndexUrl = '/search.json';
+  var codeOverlay = null;
   var codeLanguageAllowlist = [
     'yaml', 'yml', 'shell', 'sh', 'bash', 'zsh', 'python', 'py', 'json', 'jinja', 'jinja2',
     'terraform', 'hcl', 'go', 'javascript', 'js', 'typescript', 'ts', 'tsx', 'dockerfile',
@@ -45,6 +46,8 @@
   }
 
   function installCopyButtons() {
+    var codeBlockIndex = 0;
+
     codeBlocks.forEach(function(pre) {
       var wrapper = pre.parentElement;
 
@@ -61,11 +64,51 @@
         wrapper.appendChild(pre);
       }
 
-      var button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'code-copy-button';
-      button.setAttribute('aria-label', 'Copy code');
-      button.textContent = 'Copy';
+      codeBlockIndex += 1;
+
+      if (!wrapper.id) {
+        wrapper.id = 'code-block-' + codeBlockIndex;
+      }
+
+      if (!wrapper.querySelector('.code-block-toolbar')) {
+        var toolbar = document.createElement('div');
+        toolbar.className = 'code-block-toolbar';
+        wrapper.appendChild(toolbar);
+      }
+
+      var toolbar = wrapper.querySelector('.code-block-toolbar');
+
+      if (!toolbar.querySelector('.code-link-button')) {
+        var linkButton = document.createElement('a');
+        linkButton.className = 'code-link-button';
+        linkButton.href = '#' + wrapper.id;
+        linkButton.setAttribute('aria-label', 'Link to this code block');
+        linkButton.textContent = '#';
+        toolbar.appendChild(linkButton);
+      }
+
+      if (!toolbar.querySelector('.code-expand-button')) {
+        var expandButton = document.createElement('button');
+        expandButton.type = 'button';
+        expandButton.className = 'code-expand-button';
+        expandButton.setAttribute('aria-label', 'Expand code block');
+        expandButton.textContent = 'Expand';
+        expandButton.addEventListener('click', function() {
+          openCodeOverlay(wrapper);
+        });
+        toolbar.appendChild(expandButton);
+      }
+
+      var button = wrapper.querySelector('.code-copy-button');
+
+      if (!button) {
+        button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'code-copy-button';
+        button.setAttribute('aria-label', 'Copy code');
+        button.textContent = 'Copy';
+        toolbar.appendChild(button);
+      }
 
       button.addEventListener('click', function() {
         copyText(pre.innerText).then(function() {
@@ -85,8 +128,81 @@
         });
       });
 
-      wrapper.appendChild(button);
     });
+  }
+
+  function ensureCodeOverlay() {
+    if (codeOverlay) {
+      return codeOverlay;
+    }
+
+    codeOverlay = document.createElement('div');
+    codeOverlay.className = 'code-overlay';
+    codeOverlay.hidden = true;
+    codeOverlay.innerHTML = [
+      '<div class="code-overlay-backdrop" data-code-close="true"></div>',
+      '<div class="code-overlay-panel" role="dialog" aria-modal="true" aria-label="Expanded code block">',
+      '<div class="code-overlay-toolbar">',
+      '<a class="code-overlay-link" href="#" aria-label="Link to this code block">#</a>',
+      '<button type="button" class="code-overlay-copy">Copy</button>',
+      '<button type="button" class="code-overlay-close" aria-label="Close expanded code block">Close</button>',
+      '</div>',
+      '<div class="code-overlay-content"></div>',
+      '</div>'
+    ].join('');
+
+    document.body.appendChild(codeOverlay);
+
+    codeOverlay.addEventListener('click', function(event) {
+      if (event.target.getAttribute('data-code-close') === 'true' || event.target.classList.contains('code-overlay-close')) {
+        closeCodeOverlay();
+      }
+    });
+
+    return codeOverlay;
+  }
+
+  function openCodeOverlay(wrapper) {
+    var overlay = ensureCodeOverlay();
+    var content = overlay.querySelector('.code-overlay-content');
+    var link = overlay.querySelector('.code-overlay-link');
+    var copyButton = overlay.querySelector('.code-overlay-copy');
+    var codeElement = wrapper.querySelector('pre');
+
+    if (!content || !link || !copyButton || !codeElement) {
+      return;
+    }
+
+    content.innerHTML = '';
+    content.appendChild(codeElement.cloneNode(true));
+    link.href = '#' + wrapper.id;
+
+    copyButton.textContent = 'Copy';
+    copyButton.onclick = function() {
+      copyText(wrapper.querySelector('pre').innerText).then(function() {
+        copyButton.textContent = 'Copied';
+        window.setTimeout(function() {
+          copyButton.textContent = 'Copy';
+        }, 1400);
+      }).catch(function() {
+        copyButton.textContent = 'Error';
+        window.setTimeout(function() {
+          copyButton.textContent = 'Copy';
+        }, 1400);
+      });
+    };
+
+    overlay.hidden = false;
+    document.body.classList.add('has-code-overlay');
+  }
+
+  function closeCodeOverlay() {
+    if (!codeOverlay) {
+      return;
+    }
+
+    codeOverlay.hidden = true;
+    document.body.classList.remove('has-code-overlay');
   }
 
   function countCodeLinesFromRoot(root) {
@@ -590,6 +706,12 @@
 
     checkbox.checked = false;
   }, false);
+
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+      closeCodeOverlay();
+    }
+  });
 
   if (masthead) {
     syncMastheadOffset();

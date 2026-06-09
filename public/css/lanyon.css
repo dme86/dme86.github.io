@@ -390,11 +390,17 @@ a.sidebar-nav-item:focus {
   position: relative;
 }
 
-.code-copy-button {
+.code-block-toolbar {
   position: absolute;
   top: .65rem;
   right: .65rem;
+  display: flex;
+  align-items: center;
+  gap: .35rem;
   z-index: 2;
+}
+
+.code-copy-button {
   padding: .28rem .5rem;
   font-family: "PT Sans", Helvetica, Arial, sans-serif;
   font-size: .62rem;
@@ -411,14 +417,41 @@ a.sidebar-nav-item:focus {
   transition: opacity .18s ease, color .18s ease, border-color .18s ease, background-color .18s ease;
 }
 
+.code-link-button,
+.code-expand-button {
+  padding: .28rem .5rem;
+  font-family: "PT Sans", Helvetica, Arial, sans-serif;
+  font-size: .62rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: #62758a;
+  background: rgba(255,255,255,.92);
+  border: 1px solid #dbe3ea;
+  border-radius: 999px;
+  box-shadow: 0 8px 18px rgba(15, 23, 42, .08);
+  cursor: pointer;
+  text-decoration: none;
+  opacity: .18;
+  transition: opacity .18s ease, color .18s ease, border-color .18s ease, background-color .18s ease;
+}
+
 .code-block:hover .code-copy-button,
+.code-block:hover .code-link-button,
+.code-block:hover .code-expand-button,
 .code-copy-button:focus,
+.code-link-button:focus,
+.code-expand-button:focus,
 .code-copy-button.is-copied {
   opacity: 1;
 }
 
 .code-copy-button:hover,
-.code-copy-button:focus {
+.code-copy-button:focus,
+.code-link-button:hover,
+.code-link-button:focus,
+.code-expand-button:hover,
+.code-expand-button:focus {
   color: #324252;
   border-color: #c5d2df;
   text-decoration: none;
@@ -430,9 +463,96 @@ a.sidebar-nav-item:focus {
   background: #eef8f1;
 }
 
+.code-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+}
+
+.code-overlay-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(15, 23, 42, .68);
+  -webkit-backdrop-filter: blur(4px);
+          backdrop-filter: blur(4px);
+}
+
+.code-overlay-panel {
+  position: absolute;
+  inset: 4vh 4vw;
+  display: flex;
+  flex-direction: column;
+  border-radius: 18px;
+  background: #0f1720;
+  box-shadow: 0 20px 80px rgba(15, 23, 42, .45);
+  overflow: hidden;
+}
+
+.code-overlay-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  gap: .5rem;
+  padding: .85rem 1rem;
+  background: rgba(255,255,255,.04);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+
+.code-overlay-link,
+.code-overlay-copy,
+.code-overlay-close {
+  padding: .35rem .75rem;
+  font-family: "PT Sans", Helvetica, Arial, sans-serif;
+  font-size: .74rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  color: #f8fafc;
+  background: rgba(255,255,255,.1);
+  border: 0;
+  border-radius: 999px;
+  text-decoration: none;
+}
+
+.code-overlay-copy,
+.code-overlay-close {
+  cursor: pointer;
+}
+
+.code-overlay-link:hover,
+.code-overlay-link:focus,
+.code-overlay-copy:hover,
+.code-overlay-copy:focus,
+.code-overlay-close:hover,
+.code-overlay-close:focus {
+  background: rgba(255,255,255,.18);
+  color: #fff;
+}
+
+.code-overlay-content {
+  flex: 1;
+  overflow: auto;
+  padding: 0 1rem 1rem;
+}
+
+.code-overlay-content pre {
+  margin: 0;
+  min-height: 100%;
+}
+
+.has-code-overlay {
+  overflow: hidden;
+}
+
 @media (hover: none) {
-  .code-copy-button {
+  .code-copy-button,
+  .code-link-button,
+  .code-expand-button {
     opacity: 1;
+  }
+}
+
+@media (max-width: 48em) {
+  .code-overlay-panel {
+    inset: 1rem;
   }
 }
 

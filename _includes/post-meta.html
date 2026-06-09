@@ -1,35 +1,6 @@
-{% assign raw_open = '{' | append: '% raw %}' %}
-{% assign raw_close = '{' | append: '% endraw %}' %}
-{% assign source = include.content | replace: raw_open, '' | replace: raw_close, '' %}
-{% assign chunks = source | split: '```' %}
-{% assign text_words = 0 %}
-{% assign loc_count = 0 %}
-{% assign language_allowlist = '|yaml|yml|shell|sh|bash|zsh|python|py|json|jinja|jinja2|terraform|hcl|go|javascript|js|typescript|ts|tsx|dockerfile|html|css|sql|xml|toml|ini|conf|' %}
-
-{% for chunk in chunks %}
-  {% assign remainder = forloop.index0 | modulo: 2 %}
-  {% if remainder == 0 %}
-    {% assign words = chunk | markdownify | strip_html | number_of_words %}
-    {% assign text_words = text_words | plus: words %}
-  {% else %}
-    {% assign lines = chunk | split: '
-' %}
-    {% assign language = lines | first | strip | downcase %}
-    {% capture language_token %}|{{ language }}|{% endcapture %}
-
-    {% if language != '' and language_allowlist contains language_token %}
-      {% for line in lines offset:1 %}
-        {% if line | strip != '' %}
-          {% assign loc_count = loc_count | plus: 1 %}
-        {% endif %}
-      {% endfor %}
-    {% endif %}
-  {% endif %}
-{% endfor %}
-
-{% assign read_time = text_words | minus: 1 | divided_by: 200 | plus: 1 %}
-
-<span class="post-date">
+<span class="post-date js-post-meta">
   {{ include.date | date_to_string }} |
-  <span{% if include.word_id %} id="{{ include.word_id }}"{% endif %}>{{ text_words }}</span> words{% if loc_count > 0 %} &middot; <span class="post-loc">{{ loc_count }}</span> LoC{% endif %} &middot; <span class="post-read-time">{{ read_time }}</span> min read
+  <span{% if include.word_id %} id="{{ include.word_id }}"{% endif %}>{{ include.word_count }}</span> words
+  <span class="js-code-metric" hidden> &middot; <span class="post-loc js-loc-count">0</span> LoC</span>
+  &middot; <span class="post-read-time">{{ include.read_time }}</span> min read
 </span>

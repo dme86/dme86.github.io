@@ -13,6 +13,11 @@
   var searchResults = document.querySelector('#search-results');
   var searchMeta = document.querySelector('#search-meta');
   var searchIndexUrl = '/search.json';
+  var codeLanguageAllowlist = [
+    'yaml', 'yml', 'shell', 'sh', 'bash', 'zsh', 'python', 'py', 'json', 'jinja', 'jinja2',
+    'terraform', 'hcl', 'go', 'javascript', 'js', 'typescript', 'ts', 'tsx', 'dockerfile',
+    'html', 'css', 'sql', 'xml', 'toml', 'ini', 'conf'
+  ];
 
   function copyText(text) {
     if (navigator.clipboard && window.isSecureContext) {
@@ -81,6 +86,95 @@
       });
 
       wrapper.appendChild(button);
+    });
+  }
+
+  function countCodeLinesFromRoot(root) {
+    var locCount = 0;
+
+    root.querySelectorAll('div[class*="language-"] pre code').forEach(function(codeElement) {
+      var languageContainer = codeElement.closest('[class*="language-"]');
+
+      if (!languageContainer) {
+        return;
+      }
+
+      var languageClass = Array.from(languageContainer.classList).find(function(className) {
+        return className.indexOf('language-') === 0;
+      });
+
+      if (!languageClass) {
+        return;
+      }
+
+      var language = languageClass.replace('language-', '').toLowerCase();
+
+      if (codeLanguageAllowlist.indexOf(language) === -1) {
+        return;
+      }
+
+      codeElement.textContent.split('\n').forEach(function(line) {
+        if (line.trim()) {
+          locCount += 1;
+        }
+      });
+    });
+
+    return locCount;
+  }
+
+  function applyLocMetric(postElement, locCount) {
+    var metric = postElement.querySelector('.js-code-metric');
+    var value = postElement.querySelector('.js-loc-count');
+
+    if (!metric || !value) {
+      return;
+    }
+
+    if (locCount > 0) {
+      value.textContent = locCount;
+      metric.hidden = false;
+    } else {
+      metric.hidden = true;
+    }
+  }
+
+  function installPostLocMetrics() {
+    document.querySelectorAll('.post').forEach(function(postElement) {
+      var postLink = postElement.querySelector('.post-title a');
+      var postBody = postElement.querySelector('.post-header') ? postElement : null;
+
+      if (postBody) {
+        applyLocMetric(postElement, countCodeLinesFromRoot(postElement));
+        return;
+      }
+
+      if (!postLink) {
+        return;
+      }
+
+      fetch(postLink.href, { headers: { Accept: 'text/html' } })
+        .then(function(response) {
+          if (!response.ok) {
+            throw new Error('Failed to load article');
+          }
+
+          return response.text();
+        })
+        .then(function(html) {
+          var parser = new DOMParser();
+          var doc = parser.parseFromString(html, 'text/html');
+          var article = doc.querySelector('.post');
+
+          if (!article) {
+            return;
+          }
+
+          applyLocMetric(postElement, countCodeLinesFromRoot(article));
+        })
+        .catch(function() {
+          applyLocMetric(postElement, 0);
+        });
     });
   }
 
@@ -380,6 +474,7 @@
   }
 
   installSearch();
+  installPostLocMetrics();
   installHeadingAnchors();
   installCopyButtons();
   markExternalLinks();

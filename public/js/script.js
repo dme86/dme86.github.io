@@ -84,6 +84,25 @@
     });
   }
 
+  function installHeadingAnchors() {
+    var headings = document.querySelectorAll('.post h2[id], .post h3[id], .post h4[id], .post h5[id], .post h6[id]');
+
+    headings.forEach(function(heading) {
+      if (heading.querySelector('.heading-anchor')) {
+        return;
+      }
+
+      var anchor = document.createElement('a');
+      anchor.className = 'heading-anchor';
+      anchor.href = '#' + heading.id;
+      anchor.setAttribute('aria-label', 'Link to this section');
+      anchor.textContent = '#';
+
+      heading.appendChild(document.createTextNode(' '));
+      heading.appendChild(anchor);
+    });
+  }
+
   function markExternalLinks() {
     links.forEach(function(link) {
       var href = link.getAttribute('href');
@@ -347,6 +366,7 @@
   }
 
   installSearch();
+  installHeadingAnchors();
   installCopyButtons();
   markExternalLinks();
 })(document);

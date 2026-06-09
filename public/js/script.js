@@ -230,6 +230,10 @@
     return (value || '').toLowerCase().replace(/\s+/g, ' ').trim();
   }
 
+  function escapeRegex(value) {
+    return String(value).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
   function escapeHtml(value) {
     return String(value)
       .replace(/&/g, '&amp;')
@@ -239,27 +243,73 @@
       .replace(/'/g, '&#39;');
   }
 
-  function buildSnippet(text, query) {
+  function getSearchTerms(query) {
+    return normalizeSearchText(query).split(' ').filter(Boolean);
+  }
+
+  function createTermRegex(term, flags) {
+    return new RegExp('(^|[^a-z0-9])(' + escapeRegex(term) + ')(?=$|[^a-z0-9])', flags || 'i');
+  }
+
+  function matchesAllTerms(text, terms) {
+    var normalized = normalizeSearchText(text);
+
+    if (!terms.length) {
+      return false;
+    }
+
+    return terms.every(function(term) {
+      return createTermRegex(term).test(normalized);
+    });
+  }
+
+  function highlightTerms(text, terms) {
+    var highlighted = escapeHtml(text);
+
+    terms.forEach(function(term) {
+      var regex = new RegExp('(^|[^A-Za-z0-9])(' + escapeRegex(term) + ')(?=$|[^A-Za-z0-9])', 'gi');
+      highlighted = highlighted.replace(regex, function(_, prefix, match) {
+        return prefix + '<strong class="search-hit">' + match + '</strong>';
+      });
+    });
+
+    return highlighted;
+  }
+
+  function buildSnippet(text, terms) {
     var source = (text || '').replace(/\s+/g, ' ').trim();
 
     if (!source) {
       return '';
     }
 
-    if (!query) {
+    if (!terms.length) {
       return source.slice(0, 180) + (source.length > 180 ? '...' : '');
     }
 
     var lowerSource = source.toLowerCase();
-    var lowerQuery = query.toLowerCase();
-    var matchIndex = lowerSource.indexOf(lowerQuery);
+    var matchIndex = -1;
+    var matchLength = 0;
+
+    terms.some(function(term) {
+      var regex = createTermRegex(term, 'i');
+      var match = regex.exec(lowerSource);
+
+      if (match) {
+        matchIndex = match.index + match[1].length;
+        matchLength = match[2].length;
+        return true;
+      }
+
+      return false;
+    });
 
     if (matchIndex === -1) {
       return source.slice(0, 180) + (source.length > 180 ? '...' : '');
     }
 
     var start = Math.max(0, matchIndex - 70);
-    var end = Math.min(source.length, matchIndex + query.length + 110);
+    var end = Math.min(source.length, matchIndex + matchLength + 110);
     var snippet = source.slice(start, end);
 
     if (start > 0) {
@@ -273,22 +323,24 @@
     return snippet;
   }
 
-  function scoreSearchEntry(entry, query) {
+  function scoreSearchEntry(entry, terms) {
     var score = 0;
     var title = normalizeSearchText(entry.title);
     var tags = normalizeSearchText(entry.tags);
     var description = normalizeSearchText(entry.description);
     var content = normalizeSearchText(entry.content);
 
-    if (title.indexOf(query) !== -1) score += 12;
-    if (tags.indexOf(query) !== -1) score += 8;
-    if (description.indexOf(query) !== -1) score += 5;
-    if (content.indexOf(query) !== -1) score += 2;
+    terms.forEach(function(term) {
+      if (createTermRegex(term).test(title)) score += 12;
+      if (createTermRegex(term).test(tags)) score += 8;
+      if (createTermRegex(term).test(description)) score += 5;
+      if (createTermRegex(term).test(content)) score += 2;
+    });
 
     return score;
   }
 
-  function renderSearchResults(entries, query) {
+  function renderSearchResults(entries, query, terms) {
     if (!searchResults || !searchMeta) return;
 
     if (!query) {
@@ -306,15 +358,15 @@
     searchMeta.textContent = entries.length + ' result' + (entries.length === 1 ? '' : 's') + ' for "' + query + '".';
 
     searchResults.innerHTML = entries.map(function(entry) {
-      var snippet = buildSnippet(entry.content || entry.description, query);
+      var snippet = buildSnippet(entry.content || entry.description, terms);
       var tags = entry.tags ? '<p class="search-result-tags">' + escapeHtml(entry.tags) + '</p>' : '';
 
       return [
         '<article class="search-result">',
-        '<h3><a href="' + escapeHtml(entry.url) + '">' + escapeHtml(entry.title) + '</a></h3>',
+        '<h3><a href="' + escapeHtml(entry.url) + '">' + highlightTerms(entry.title, terms) + '</a></h3>',
         '<p class="search-result-date">' + escapeHtml(entry.date) + '</p>',
         tags,
-        '<p class="search-result-snippet">' + escapeHtml(snippet) + '</p>',
+        '<p class="search-result-snippet">' + highlightTerms(snippet, terms) + '</p>',
         '</article>'
       ].join('');
     }).join('');
@@ -342,6 +394,7 @@
 
     function runSearch(rawQuery) {
       var query = normalizeSearchText(rawQuery);
+      var terms = getSearchTerms(rawQuery);
 
       if (!searchReady) {
         pendingQuery = query;
@@ -349,7 +402,7 @@
       }
 
       if (!query) {
-        renderSearchResults([], '');
+        renderSearchResults([], '', []);
         return;
       }
 
@@ -357,11 +410,16 @@
         .map(function(entry) {
           return {
             entry: entry,
-            score: scoreSearchEntry(entry, query)
+            score: scoreSearchEntry(entry, terms)
           };
         })
         .filter(function(result) {
-          return result.score > 0;
+          return result.score > 0 && (
+            matchesAllTerms(result.entry.title, terms) ||
+            matchesAllTerms(result.entry.tags, terms) ||
+            matchesAllTerms(result.entry.description, terms) ||
+            matchesAllTerms(result.entry.content, terms)
+          );
         })
         .sort(function(a, b) {
           if (b.score !== a.score) {
@@ -375,7 +433,7 @@
           return result.entry;
         });
 
-      renderSearchResults(results, rawQuery.trim());
+      renderSearchResults(results, rawQuery.trim(), terms);
     }
 
       searchMeta.textContent = 'Loading search index...';

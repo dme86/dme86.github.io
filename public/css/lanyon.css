@@ -893,6 +893,12 @@ a.sidebar-nav-item:focus {
   margin-bottom: 0;
 }
 
+.search-hit {
+  font-weight: 700;
+  color: #24394d;
+  background: #e7f0f8;
+}
+
 /* Blog post or page title */
 .page-title,
 .post-title,

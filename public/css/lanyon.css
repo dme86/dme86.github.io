@@ -957,6 +957,25 @@ a.sidebar-nav-item:focus {
   font-size: 15px;
 }
 
+.post-code-metric {
+  display: inline-block;
+  margin-left: .45rem;
+  padding: .1rem .45rem;
+  border-radius: 999px;
+  background: #eef4f9;
+  color: #53697d;
+  font-family: "PT Sans", Helvetica, Arial, sans-serif;
+  font-size: .78em;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+
+.post-loc,
+.post-read-time {
+  font-variant-numeric: tabular-nums;
+}
+
 @media (max-width: 48em) {
   .post-header {
     padding-top: .7rem;

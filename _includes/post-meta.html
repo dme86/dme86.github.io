@@ -1,4 +1,4 @@
-{% assign source = include.content | replace: '{% raw %}', '' | replace: '{% endraw %}', '' %}
+{% assign source = include.content %}
 {% assign chunks = source | split: '```' %}
 {% assign text_words = 0 %}
 {% assign loc_count = 0 %}

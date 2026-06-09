@@ -243,8 +243,51 @@
       .replace(/'/g, '&#39;');
   }
 
-  function getSearchTerms(query) {
-    return normalizeSearchText(query).split(' ').filter(Boolean);
+  function parseSearchQuery(query) {
+    var parsed = {
+      generalTerms: [],
+      titleTerms: [],
+      contentTerms: [],
+      tagsTerms: [],
+      descriptionTerms: []
+    };
+
+    normalizeSearchText(query).split(' ').filter(Boolean).forEach(function(token) {
+      var separatorIndex = token.indexOf(':');
+      var field = separatorIndex > 0 ? token.slice(0, separatorIndex) : '';
+      var term = separatorIndex > 0 ? token.slice(separatorIndex + 1) : token;
+
+      if (!term) {
+        return;
+      }
+
+      if (field === 'title' || field === 'headline') {
+        parsed.titleTerms.push(term);
+        return;
+      }
+
+      if (field === 'content' || field === 'body') {
+        parsed.contentTerms.push(term);
+        return;
+      }
+
+      if (field === 'tags' || field === 'tag') {
+        parsed.tagsTerms.push(term);
+        return;
+      }
+
+      if (field === 'description' || field === 'desc') {
+        parsed.descriptionTerms.push(term);
+        return;
+      }
+
+      parsed.generalTerms.push(token);
+    });
+
+    parsed.allTerms = []
+      .concat(parsed.generalTerms, parsed.titleTerms, parsed.contentTerms, parsed.tagsTerms, parsed.descriptionTerms);
+
+    return parsed;
   }
 
   function createTermRegex(term, flags) {
@@ -255,12 +298,21 @@
     var normalized = normalizeSearchText(text);
 
     if (!terms.length) {
-      return false;
+      return true;
     }
 
     return terms.every(function(term) {
       return createTermRegex(term).test(normalized);
     });
+  }
+
+  function matchesAnyField(entry, term) {
+    return (
+      createTermRegex(term).test(normalizeSearchText(entry.title)) ||
+      createTermRegex(term).test(normalizeSearchText(entry.tags)) ||
+      createTermRegex(term).test(normalizeSearchText(entry.description)) ||
+      createTermRegex(term).test(normalizeSearchText(entry.content))
+    );
   }
 
   function highlightTerms(text, terms) {
@@ -323,24 +375,40 @@
     return snippet;
   }
 
-  function scoreSearchEntry(entry, terms) {
+  function scoreSearchEntry(entry, parsedQuery) {
     var score = 0;
     var title = normalizeSearchText(entry.title);
     var tags = normalizeSearchText(entry.tags);
     var description = normalizeSearchText(entry.description);
     var content = normalizeSearchText(entry.content);
 
-    terms.forEach(function(term) {
+    parsedQuery.generalTerms.forEach(function(term) {
       if (createTermRegex(term).test(title)) score += 12;
       if (createTermRegex(term).test(tags)) score += 8;
       if (createTermRegex(term).test(description)) score += 5;
       if (createTermRegex(term).test(content)) score += 2;
     });
 
+    parsedQuery.titleTerms.forEach(function(term) {
+      if (createTermRegex(term).test(title)) score += 20;
+    });
+
+    parsedQuery.contentTerms.forEach(function(term) {
+      if (createTermRegex(term).test(content)) score += 10;
+    });
+
+    parsedQuery.tagsTerms.forEach(function(term) {
+      if (createTermRegex(term).test(tags)) score += 12;
+    });
+
+    parsedQuery.descriptionTerms.forEach(function(term) {
+      if (createTermRegex(term).test(description)) score += 8;
+    });
+
     return score;
   }
 
-  function renderSearchResults(entries, query, terms) {
+  function renderSearchResults(entries, query, parsedQuery) {
     if (!searchResults || !searchMeta) return;
 
     if (!query) {
@@ -358,15 +426,19 @@
     searchMeta.textContent = entries.length + ' result' + (entries.length === 1 ? '' : 's') + ' for "' + query + '".';
 
     searchResults.innerHTML = entries.map(function(entry) {
-      var snippet = buildSnippet(entry.content || entry.description, terms);
+      var snippetTerms = parsedQuery.contentTerms.length ? parsedQuery.contentTerms : parsedQuery.generalTerms;
+      var snippetSource = entry.content || entry.description;
+      var snippet = buildSnippet(snippetSource, snippetTerms);
       var tags = entry.tags ? '<p class="search-result-tags">' + escapeHtml(entry.tags) + '</p>' : '';
+      var titleHighlightTerms = parsedQuery.titleTerms.length ? parsedQuery.titleTerms.concat(parsedQuery.generalTerms) : parsedQuery.allTerms;
+      var snippetHighlightTerms = snippetTerms.length ? snippetTerms : parsedQuery.allTerms;
 
       return [
         '<article class="search-result">',
-        '<h3><a href="' + escapeHtml(entry.url) + '">' + highlightTerms(entry.title, terms) + '</a></h3>',
+        '<h3><a href="' + escapeHtml(entry.url) + '">' + highlightTerms(entry.title, titleHighlightTerms) + '</a></h3>',
         '<p class="search-result-date">' + escapeHtml(entry.date) + '</p>',
         tags,
-        '<p class="search-result-snippet">' + highlightTerms(snippet, terms) + '</p>',
+        '<p class="search-result-snippet">' + highlightTerms(snippet, snippetHighlightTerms) + '</p>',
         '</article>'
       ].join('');
     }).join('');
@@ -394,7 +466,7 @@
 
     function runSearch(rawQuery) {
       var query = normalizeSearchText(rawQuery);
-      var terms = getSearchTerms(rawQuery);
+      var parsedQuery = parseSearchQuery(rawQuery);
 
       if (!searchReady) {
         pendingQuery = query;
@@ -402,7 +474,7 @@
       }
 
       if (!query) {
-        renderSearchResults([], '', []);
+        renderSearchResults([], '', parsedQuery);
         return;
       }
 
@@ -410,15 +482,20 @@
         .map(function(entry) {
           return {
             entry: entry,
-            score: scoreSearchEntry(entry, terms)
+            score: scoreSearchEntry(entry, parsedQuery)
           };
         })
         .filter(function(result) {
+          var entry = result.entry;
+
           return result.score > 0 && (
-            matchesAllTerms(result.entry.title, terms) ||
-            matchesAllTerms(result.entry.tags, terms) ||
-            matchesAllTerms(result.entry.description, terms) ||
-            matchesAllTerms(result.entry.content, terms)
+            parsedQuery.generalTerms.every(function(term) {
+              return matchesAnyField(entry, term);
+            }) &&
+            matchesAllTerms(entry.title, parsedQuery.titleTerms) &&
+            matchesAllTerms(entry.content, parsedQuery.contentTerms) &&
+            matchesAllTerms(entry.tags, parsedQuery.tagsTerms) &&
+            matchesAllTerms(entry.description, parsedQuery.descriptionTerms)
           );
         })
         .sort(function(a, b) {
@@ -433,7 +510,7 @@
           return result.entry;
         });
 
-      renderSearchResults(results, rawQuery.trim(), terms);
+      renderSearchResults(results, rawQuery.trim(), parsedQuery);
     }
 
       searchMeta.textContent = 'Loading search index...';

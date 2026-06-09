@@ -6,8 +6,6 @@ date: 2026-06-09
 tags: [Docker, CI/CD]
 ---
 
-# You Probably Want a Monorepo for Your Base Images
-
 Most engineering teams do not start with an image governance problem.
 
 They start with something humble: one `Dockerfile` for Python, one for Node.js, one for `kubectl`, maybe one for Maven or a Java runtime. Every repository looks small enough to be harmless. Then the small things start multiplying: slightly different labels, slightly different CI jobs, slightly different versioning schemes, slightly different ways to import internal certificate authorities, slightly different smoke tests, slightly different signing steps.

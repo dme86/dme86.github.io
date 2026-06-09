@@ -26,6 +26,6 @@ permalink: /search/
     />
   </div>
 
-  <div class="search-meta" id="search-meta">Type to search the archive.</div>
+  <div class="search-meta" id="search-meta"></div>
   <div class="search-results" id="search-results"></div>
 </div>

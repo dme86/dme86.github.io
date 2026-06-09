@@ -198,7 +198,7 @@
     if (!searchResults || !searchMeta) return;
 
     if (!query) {
-      searchMeta.textContent = 'Type to search the archive.';
+      searchMeta.textContent = '';
       searchResults.innerHTML = '';
       return;
     }
@@ -232,6 +232,19 @@
     var searchData = [];
     var searchReady = false;
     var pendingQuery = '';
+
+    function syncSearchUrl(rawQuery) {
+      var url = new URL(window.location.href);
+      var value = rawQuery.trim();
+
+      if (value) {
+        url.searchParams.set('q', value);
+      } else {
+        url.searchParams.delete('q');
+      }
+
+      window.history.replaceState({}, '', url.toString());
+    }
 
     function runSearch(rawQuery) {
       var query = normalizeSearchText(rawQuery);
@@ -271,7 +284,7 @@
       renderSearchResults(results, rawQuery.trim());
     }
 
-    searchMeta.textContent = 'Loading search index...';
+      searchMeta.textContent = 'Loading search index...';
 
     fetch(searchIndexUrl, { headers: { Accept: 'application/json' } })
       .then(function(response) {
@@ -284,7 +297,7 @@
       .then(function(data) {
         searchData = data;
         searchReady = true;
-        searchMeta.textContent = 'Type to search the archive.';
+        searchMeta.textContent = '';
 
         var params = new URLSearchParams(window.location.search);
         var initialQuery = params.get('q') || pendingQuery;
@@ -299,6 +312,7 @@
       });
 
     searchInput.addEventListener('input', function() {
+      syncSearchUrl(searchInput.value);
       runSearch(searchInput.value);
     });
   }

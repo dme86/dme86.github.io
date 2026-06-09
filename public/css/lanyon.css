@@ -388,6 +388,7 @@ a.sidebar-nav-item:focus {
 
 .code-block {
   position: relative;
+  scroll-margin-top: calc(var(--masthead-offset) + 1rem);
 }
 
 .code-block-toolbar {

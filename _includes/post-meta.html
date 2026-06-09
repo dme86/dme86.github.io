@@ -1,6 +1,6 @@
 <span class="post-date js-post-meta">
   {{ include.date | date_to_string }} |
   <span{% if include.word_id %} id="{{ include.word_id }}"{% endif %}>{{ include.word_count }}</span> words
-  <span class="js-code-metric" hidden> &middot; <span class="post-loc js-loc-count">0</span> LoC</span>
+  <span class="js-code-metric" hidden>&middot; <span class="post-loc js-loc-count">0</span> LoC</span>
   &middot; <span class="post-read-time">{{ include.read_time }}</span> min read
 </span>

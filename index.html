@@ -5,6 +5,8 @@ title: Home
 
 <div class="posts">
   {% for post in paginator.posts %}
+  {% assign fallback_words = post.content | markdownify | strip_html | number_of_words %}
+  {% assign fallback_read_time = fallback_words | minus: 1 | divided_by: 200 | plus: 1 %}
   <div class="post">
     <h1 class="post-title">
       <a href="{{ post.url | absolute_url }}">
@@ -12,7 +14,7 @@ title: Home
       </a>
     </h1>
 
-    {% include post-meta.html content=post.content date=post.date %}
+    {% include post-meta.html date=post.date fallback_words=fallback_words fallback_read_time=fallback_read_time %}
 
     {{ post.excerpt }}
     <a href="{{ post.url | absolute_url }}" class="read-more">Read more</a>

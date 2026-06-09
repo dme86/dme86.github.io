@@ -13,11 +13,6 @@
   var searchResults = document.querySelector('#search-results');
   var searchMeta = document.querySelector('#search-meta');
   var searchIndexUrl = '/search.json';
-  var codeLanguageAllowlist = [
-    'yaml', 'yml', 'shell', 'sh', 'bash', 'zsh', 'python', 'py', 'json', 'jinja', 'jinja2',
-    'terraform', 'hcl', 'go', 'javascript', 'js', 'typescript', 'ts', 'tsx', 'dockerfile',
-    'html', 'css', 'sql', 'xml', 'toml', 'ini', 'conf'
-  ];
 
   function copyText(text) {
     if (navigator.clipboard && window.isSecureContext) {
@@ -86,82 +81,6 @@
       });
 
       wrapper.appendChild(button);
-    });
-  }
-
-  function countWordsFromText(text) {
-    var normalized = (text || '').replace(/\s+/g, ' ').trim();
-
-    if (!normalized) {
-      return 0;
-    }
-
-    return normalized.split(' ').length;
-  }
-
-  function countCodeLines(postElement) {
-    var locCount = 0;
-
-    postElement.querySelectorAll('div[class*="language-"] pre code').forEach(function(codeElement) {
-      var languageClass = Array.from(codeElement.parentElement.parentElement.parentElement.classList).find(function(className) {
-        return className.indexOf('language-') === 0;
-      });
-
-      if (!languageClass) {
-        return;
-      }
-
-      var language = languageClass.replace('language-', '').toLowerCase();
-
-      if (codeLanguageAllowlist.indexOf(language) === -1) {
-        return;
-      }
-
-      codeElement.textContent.split('\n').forEach(function(line) {
-        if (line.trim()) {
-          locCount += 1;
-        }
-      });
-    });
-
-    return locCount;
-  }
-
-  function extractPostText(postElement) {
-    var clone = postElement.cloneNode(true);
-
-    clone.querySelectorAll('.post-header, .post-date, .read-more, pre, .highlight, .code-block').forEach(function(node) {
-      node.remove();
-    });
-
-    return clone.textContent || '';
-  }
-
-  function installPostMetrics() {
-    document.querySelectorAll('.post').forEach(function(postElement) {
-      var meta = postElement.querySelector('.js-post-meta');
-      var wordCountElement = postElement.querySelector('.js-word-count');
-      var readTimeElement = postElement.querySelector('.js-read-time');
-      var codeMetricElement = postElement.querySelector('.js-code-metric');
-      var locCountElement = postElement.querySelector('.js-loc-count');
-
-      if (!meta || !wordCountElement || !readTimeElement || !codeMetricElement || !locCountElement) {
-        return;
-      }
-
-      var words = countWordsFromText(extractPostText(postElement));
-      var loc = countCodeLines(postElement);
-      var readTime = Math.max(1, Math.ceil(words / 200));
-
-      wordCountElement.textContent = words;
-      readTimeElement.textContent = readTime;
-
-      if (loc > 0) {
-        locCountElement.textContent = loc;
-        codeMetricElement.hidden = false;
-      } else {
-        codeMetricElement.hidden = true;
-      }
     });
   }
 
@@ -461,7 +380,6 @@
   }
 
   installSearch();
-  installPostMetrics();
   installHeadingAnchors();
   installCopyButtons();
   markExternalLinks();

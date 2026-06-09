@@ -796,6 +796,103 @@ a.sidebar-nav-item:focus {
   }
 }
 
+.search-page {
+  display: grid;
+  gap: 1.3rem;
+}
+
+.search-intro,
+.search-shell,
+.search-result {
+  background: linear-gradient(180deg, #ffffff 0%, #fbfcfd 100%);
+  border: 1px solid #e7edf2;
+  border-radius: 18px;
+  box-shadow: 0 14px 35px rgba(15, 23, 42, .04);
+}
+
+.search-intro,
+.search-shell {
+  padding: 1.2rem 1.25rem;
+}
+
+.search-kicker {
+  margin: 0 0 .35rem;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: #7c8b98;
+}
+
+.search-heading {
+  margin: 0 0 .45rem;
+}
+
+.search-lede {
+  margin: 0;
+  color: #66727e;
+}
+
+.search-label {
+  display: block;
+  margin-bottom: .55rem;
+  font-family: "PT Sans", Helvetica, Arial, sans-serif;
+  font-size: .8rem;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: #526272;
+}
+
+.search-input {
+  width: 100%;
+  padding: .95rem 1rem;
+  border: 1px solid #cfd9e2;
+  border-radius: 12px;
+  background: #fff;
+  color: #23313f;
+  font: inherit;
+  box-sizing: border-box;
+}
+
+.search-input:focus {
+  outline: none;
+  border-color: #7f99b3;
+  box-shadow: 0 0 0 4px rgba(127, 153, 179, .14);
+}
+
+.search-meta {
+  font-family: "PT Sans", Helvetica, Arial, sans-serif;
+  font-size: .9rem;
+  color: #66727e;
+}
+
+.search-results {
+  display: grid;
+  gap: 1rem;
+}
+
+.search-result {
+  padding: 1rem 1.1rem;
+}
+
+.search-result h3 {
+  margin-top: 0;
+  margin-bottom: .3rem;
+}
+
+.search-result-date,
+.search-result-tags {
+  margin: 0 0 .35rem;
+  font-family: "PT Sans", Helvetica, Arial, sans-serif;
+  font-size: .84rem;
+  color: #728191;
+}
+
+.search-result-snippet {
+  margin-bottom: 0;
+}
+
 /* Blog post or page title */
 .page-title,
 .post-title,

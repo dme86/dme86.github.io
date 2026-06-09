@@ -2,6 +2,7 @@
 title: Running a Tor Exit Node on CentOS Stream 9 with Ansible
 description: "How to bootstrap and harden a Tor exit relay on CentOS Stream 9 with Ansible."
 layout: post
+date: 2026-06-09 13:00:00 +0200
 tags: [Ansible, CentOS]
 ---
 

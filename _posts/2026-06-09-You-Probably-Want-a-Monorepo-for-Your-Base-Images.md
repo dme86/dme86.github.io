@@ -2,7 +2,7 @@
 title: "You Probably Want a Monorepo for Your Base Images"
 description: "Why a monorepo is often the right model for internal base and tool images."
 layout: post
-date: 2026-06-09
+date: 2026-06-09 09:00:00 +0200
 tags: [Docker, CI/CD]
 ---
 

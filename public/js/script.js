@@ -9,6 +9,10 @@
   var post = articleWordCount ? document.querySelector('.post') : null;
   var links = document.querySelectorAll('a[href]');
   var codeBlocks = document.querySelectorAll('pre');
+  var searchInput = document.querySelector('#site-search');
+  var searchResults = document.querySelector('#search-results');
+  var searchMeta = document.querySelector('#search-meta');
+  var searchIndexUrl = '/search.json';
 
   function copyText(text) {
     if (navigator.clipboard && window.isSecureContext) {
@@ -109,6 +113,177 @@
     document.documentElement.style.setProperty('--masthead-offset', masthead.offsetHeight + 'px');
   }
 
+  function normalizeSearchText(value) {
+    return (value || '').toLowerCase().replace(/\s+/g, ' ').trim();
+  }
+
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function buildSnippet(text, query) {
+    var source = (text || '').replace(/\s+/g, ' ').trim();
+
+    if (!source) {
+      return '';
+    }
+
+    if (!query) {
+      return source.slice(0, 180) + (source.length > 180 ? '...' : '');
+    }
+
+    var lowerSource = source.toLowerCase();
+    var lowerQuery = query.toLowerCase();
+    var matchIndex = lowerSource.indexOf(lowerQuery);
+
+    if (matchIndex === -1) {
+      return source.slice(0, 180) + (source.length > 180 ? '...' : '');
+    }
+
+    var start = Math.max(0, matchIndex - 70);
+    var end = Math.min(source.length, matchIndex + query.length + 110);
+    var snippet = source.slice(start, end);
+
+    if (start > 0) {
+      snippet = '...' + snippet;
+    }
+
+    if (end < source.length) {
+      snippet += '...';
+    }
+
+    return snippet;
+  }
+
+  function scoreSearchEntry(entry, query) {
+    var score = 0;
+    var title = normalizeSearchText(entry.title);
+    var tags = normalizeSearchText(entry.tags);
+    var description = normalizeSearchText(entry.description);
+    var content = normalizeSearchText(entry.content);
+
+    if (title.indexOf(query) !== -1) score += 12;
+    if (tags.indexOf(query) !== -1) score += 8;
+    if (description.indexOf(query) !== -1) score += 5;
+    if (content.indexOf(query) !== -1) score += 2;
+
+    return score;
+  }
+
+  function renderSearchResults(entries, query) {
+    if (!searchResults || !searchMeta) return;
+
+    if (!query) {
+      searchMeta.textContent = 'Type to search the archive.';
+      searchResults.innerHTML = '';
+      return;
+    }
+
+    if (!entries.length) {
+      searchMeta.textContent = 'No posts matched "' + query + '".';
+      searchResults.innerHTML = '';
+      return;
+    }
+
+    searchMeta.textContent = entries.length + ' result' + (entries.length === 1 ? '' : 's') + ' for "' + query + '".';
+
+    searchResults.innerHTML = entries.map(function(entry) {
+      var snippet = buildSnippet(entry.content || entry.description, query);
+      var tags = entry.tags ? '<p class="search-result-tags">' + escapeHtml(entry.tags) + '</p>' : '';
+
+      return [
+        '<article class="search-result">',
+        '<h3><a href="' + escapeHtml(entry.url) + '">' + escapeHtml(entry.title) + '</a></h3>',
+        '<p class="search-result-date">' + escapeHtml(entry.date) + '</p>',
+        tags,
+        '<p class="search-result-snippet">' + escapeHtml(snippet) + '</p>',
+        '</article>'
+      ].join('');
+    }).join('');
+  }
+
+  function installSearch() {
+    if (!searchInput || !searchResults || !searchMeta) return;
+
+    var searchData = [];
+    var searchReady = false;
+    var pendingQuery = '';
+
+    function runSearch(rawQuery) {
+      var query = normalizeSearchText(rawQuery);
+
+      if (!searchReady) {
+        pendingQuery = query;
+        return;
+      }
+
+      if (!query) {
+        renderSearchResults([], '');
+        return;
+      }
+
+      var results = searchData
+        .map(function(entry) {
+          return {
+            entry: entry,
+            score: scoreSearchEntry(entry, query)
+          };
+        })
+        .filter(function(result) {
+          return result.score > 0;
+        })
+        .sort(function(a, b) {
+          if (b.score !== a.score) {
+            return b.score - a.score;
+          }
+
+          return new Date(b.entry.sort_date) - new Date(a.entry.sort_date);
+        })
+        .slice(0, 20)
+        .map(function(result) {
+          return result.entry;
+        });
+
+      renderSearchResults(results, rawQuery.trim());
+    }
+
+    searchMeta.textContent = 'Loading search index...';
+
+    fetch(searchIndexUrl, { headers: { Accept: 'application/json' } })
+      .then(function(response) {
+        if (!response.ok) {
+          throw new Error('Failed to load search index');
+        }
+
+        return response.json();
+      })
+      .then(function(data) {
+        searchData = data;
+        searchReady = true;
+        searchMeta.textContent = 'Type to search the archive.';
+
+        var params = new URLSearchParams(window.location.search);
+        var initialQuery = params.get('q') || pendingQuery;
+
+        if (initialQuery) {
+          searchInput.value = initialQuery;
+          runSearch(initialQuery);
+        }
+      })
+      .catch(function() {
+        searchMeta.textContent = 'Search index could not be loaded.';
+      });
+
+    searchInput.addEventListener('input', function() {
+      runSearch(searchInput.value);
+    });
+  }
+
   function toggleScrollTopButton() {
     if (!scrollTopButton) return;
 
@@ -171,6 +346,7 @@
     updateReadingProgress();
   }
 
+  installSearch();
   installCopyButtons();
   markExternalLinks();
 })(document);

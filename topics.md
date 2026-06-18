@@ -80,16 +80,15 @@ title: Topics
           <div class="topic-post-list">
             {% assign sorted_posts = posts | sort: "date" | reverse %}
             {% for post in sorted_posts %}
-              {% assign read_time = post.content | number_of_words | divided_by: 180 %}
-              {% if read_time < 1 %}
-                {% assign read_time = 1 %}
-              {% endif %}
+              {% capture reading_estimate %}{% include reading-estimate.html content=post.content %}{% endcapture %}
+              {% assign reading_estimate_parts = reading_estimate | strip | split: "|" %}
+              {% assign read_time = reading_estimate_parts[1] | strip %}
               <article class="topic-post-card">
                 {% capture post_age %}{% include post-age.html date=post.date %}{% endcapture %}
                 <p class="topic-post-meta">
                   <span>{{ post.date | date: "%B %-d, %Y" }} <span class="post-age js-post-age" data-post-date="{{ post.date | date_to_xmlschema }}">({{ post_age | strip }})</span></span>
                   <span>&middot;</span>
-                  <span>{{ read_time }} min read</span>
+                  <span>~{{ read_time }} min read</span>
                 </p>
                 <h3><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h3>
                 <p class="topic-post-excerpt">{{ post.excerpt | strip_html | normalize_whitespace | truncate: 180 }}</p>
@@ -118,16 +117,15 @@ title: Topics
           <div class="topic-post-list">
             {% assign sorted_posts = tag[1] | sort: "date" | reverse %}
             {% for post in sorted_posts %}
-              {% assign read_time = post.content | number_of_words | divided_by: 180 %}
-              {% if read_time < 1 %}
-                {% assign read_time = 1 %}
-              {% endif %}
+              {% capture reading_estimate %}{% include reading-estimate.html content=post.content %}{% endcapture %}
+              {% assign reading_estimate_parts = reading_estimate | strip | split: "|" %}
+              {% assign read_time = reading_estimate_parts[1] | strip %}
               <article class="topic-post-card">
                 {% capture post_age %}{% include post-age.html date=post.date %}{% endcapture %}
                 <p class="topic-post-meta">
                   <span>{{ post.date | date: "%B %-d, %Y" }} <span class="post-age js-post-age" data-post-date="{{ post.date | date_to_xmlschema }}">({{ post_age | strip }})</span></span>
                   <span>&middot;</span>
-                  <span>{{ read_time }} min read</span>
+                  <span>~{{ read_time }} min read</span>
                 </p>
                 <h3><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h3>
                 <p class="topic-post-excerpt">{{ post.excerpt | strip_html | normalize_whitespace | truncate: 180 }}</p>

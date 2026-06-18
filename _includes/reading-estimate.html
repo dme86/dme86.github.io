@@ -1,0 +1,94 @@
+{% comment %}
+Estimate technical posts as prose reading plus weighted scanning time for code and images.
+Code is removed from the prose word count so it is not counted twice.
+{% endcomment %}
+{% assign source = include.content | default: "" | replace: "````", "```" | replace: "~~~", "```" %}
+{% assign prose_words_per_minute = 200 %}
+{% assign code_tenths_seconds_per_line = 15 %}
+{% assign code_block_pause_seconds = 8 %}
+{% assign image_pause_seconds = 10 %}
+{% assign image_set_pause_seconds = 5 %}
+{% assign code_line_count = 0 %}
+{% assign code_block_count = 0 %}
+{% assign newline = "
+" %}
+
+{% capture prose_without_fenced_code %}
+{% assign fenced_sections = source | split: "```" %}
+{% for section in fenced_sections %}
+  {% assign section_modulo = forloop.index0 | modulo: 2 %}
+  {% if section_modulo == 0 %}
+{{ section }}
+  {% else %}
+    {% assign code_block_count = code_block_count | plus: 1 %}
+    {% assign code_lines = section | split: newline %}
+    {% for code_line in code_lines offset:1 %}
+      {% assign trimmed_code_line = code_line | strip %}
+      {% if trimmed_code_line != "" %}
+        {% assign code_line_count = code_line_count | plus: 1 %}
+      {% endif %}
+    {% endfor %}
+  {% endif %}
+{% endfor %}
+{% endcapture %}
+
+{% capture prose_without_code %}
+{% assign prose_lines = prose_without_fenced_code | split: newline %}
+{% assign in_indented_code = false %}
+{% assign previous_line_blank = true %}
+{% for line in prose_lines %}
+  {% assign trimmed_line = line | strip %}
+  {% assign first_four_chars = line | slice: 0, 4 %}
+  {% assign is_indented = false %}
+  {% if first_four_chars == "    " %}
+    {% assign is_indented = true %}
+  {% endif %}
+
+  {% assign is_code_line = false %}
+  {% if trimmed_line != "" and is_indented %}
+    {% if in_indented_code %}
+      {% assign is_code_line = true %}
+    {% elsif previous_line_blank %}
+      {% assign is_code_line = true %}
+    {% endif %}
+  {% endif %}
+
+  {% if is_code_line %}
+    {% unless in_indented_code %}
+      {% assign code_block_count = code_block_count | plus: 1 %}
+    {% endunless %}
+    {% assign code_line_count = code_line_count | plus: 1 %}
+    {% assign in_indented_code = true %}
+    {% assign previous_line_blank = false %}
+  {% else %}
+    {% if trimmed_line == "" %}
+      {% assign previous_line_blank = true %}
+    {% else %}
+      {% assign in_indented_code = false %}
+      {% assign previous_line_blank = false %}
+    {% endif %}
+{{ line }}
+  {% endif %}
+{% endfor %}
+{% endcapture %}
+
+{% assign prose_word_count = prose_without_code | markdownify | strip_html | number_of_words %}
+{% assign markdown_image_count = source | split: "![" | size | minus: 1 %}
+{% assign html_image_count = source | split: "<img" | size | minus: 1 %}
+{% assign image_count = markdown_image_count | plus: html_image_count %}
+
+{% assign prose_seconds = prose_word_count | times: 60 | divided_by: prose_words_per_minute %}
+{% assign code_seconds = code_line_count | times: code_tenths_seconds_per_line | divided_by: 10 %}
+{% assign code_pause_seconds = code_block_count | times: code_block_pause_seconds %}
+{% assign image_seconds = image_count | times: image_pause_seconds %}
+{% if image_count > 0 %}
+  {% assign image_seconds = image_seconds | plus: image_set_pause_seconds %}
+{% endif %}
+
+{% assign total_seconds = prose_seconds | plus: code_seconds | plus: code_pause_seconds | plus: image_seconds %}
+{% assign read_time = total_seconds | minus: 1 | divided_by: 60 | plus: 1 %}
+{% if read_time < 1 %}
+  {% assign read_time = 1 %}
+{% endif %}
+
+{{ prose_word_count }}|{{ read_time }}

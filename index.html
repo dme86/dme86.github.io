@@ -5,8 +5,10 @@ title: Home
 
 <div class="posts">
   {% for post in paginator.posts %}
-  {% assign word_count = post.content | markdownify | strip_html | number_of_words %}
-  {% assign read_time = word_count | minus: 1 | divided_by: 200 | plus: 1 %}
+  {% capture reading_estimate %}{% include reading-estimate.html content=post.content %}{% endcapture %}
+  {% assign reading_estimate_parts = reading_estimate | strip | split: "|" %}
+  {% assign word_count = reading_estimate_parts[0] | strip %}
+  {% assign read_time = reading_estimate_parts[1] | strip %}
   <div class="post">
     <h1 class="post-title">
       <a href="{{ post.url | relative_url }}">

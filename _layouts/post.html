@@ -3,8 +3,10 @@ layout: default
 ---
 
 <div class="post">
-  {% assign word_count = page.content | markdownify | strip_html | number_of_words %}
-  {% assign read_time = word_count | minus: 1 | divided_by: 200 | plus: 1 %}
+  {% capture reading_estimate %}{% include reading-estimate.html content=page.content %}{% endcapture %}
+  {% assign reading_estimate_parts = reading_estimate | strip | split: "|" %}
+  {% assign word_count = reading_estimate_parts[0] | strip %}
+  {% assign read_time = reading_estimate_parts[1] | strip %}
   <div class="post-header">
     <h1 class="post-title">{{ page.title }}</h1>
     {% include post-meta.html date=page.date word_id="word-count" word_count=word_count read_time=read_time %}

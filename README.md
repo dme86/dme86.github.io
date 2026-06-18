@@ -1,4 +1,23 @@
-# Development with Podman
+# Local development
+
+## Ruby / Jekyll
+
+The site can be served locally with Bundler and Jekyll:
+
+```sh
+gem install --user-install bundler:2.4.17
+bundle config set --local path .bundle/vendor
+bundle install
+bundle exec jekyll serve --host 127.0.0.1 --port 4000
+```
+
+Then open http://127.0.0.1:4000/.
+
+The bundle is installed below `.bundle/`, which is ignored by Git. This keeps
+local gems out of the repository and avoids writing into the system Ruby
+installation.
+
+## Podman
 
 This project utilizes [Podman](https://podman.io/) for local development and containerization. [Podman](https://podman.io/) is a daemonless container engine that allows you to run and manage containers without the need for a background daemon process. Follow the steps below to set up and run the project using [Podman](https://podman.io/).
 

@@ -2,7 +2,7 @@
 title: "Installing Kyverno and Capsule with Flux"
 description: "How to install policy and multi-tenancy tooling with Flux, then use Kyverno and Capsule with small practical examples."
 layout: post
-date: 2026-06-18 14:00:00 +0200
+date: 2026-06-18 10:05:00 +0200
 tags: [Kubernetes, GitOps, Flux, Security]
 ---
 

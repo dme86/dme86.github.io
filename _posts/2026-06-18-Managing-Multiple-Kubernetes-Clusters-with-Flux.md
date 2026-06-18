@@ -2,7 +2,7 @@
 title: "Managing Multiple Kubernetes Clusters with Flux"
 description: "How to structure a Flux repository for dev, test, and prod clusters, and how to decide which namespaces and apps land where."
 layout: post
-date: 2026-06-18 18:00:00 +0200
+date: 2026-06-18 10:10:00 +0200
 tags: [Kubernetes, GitOps, Flux]
 ---
 

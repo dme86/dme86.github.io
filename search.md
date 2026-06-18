@@ -22,6 +22,7 @@ permalink: /search/
       inputmode="search"
       autocomplete="off"
       spellcheck="false"
+      autofocus
       placeholder="Search for Ansible, CentOS, Tor, Terraform..."
     />
   </div>

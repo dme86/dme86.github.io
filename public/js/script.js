@@ -662,6 +662,18 @@
     });
   }
 
+  function focusSearchInput() {
+    if (!searchInput) return;
+
+    window.setTimeout(function() {
+      searchInput.focus();
+
+      if (searchInput.value && typeof searchInput.setSelectionRange === 'function') {
+        searchInput.setSelectionRange(searchInput.value.length, searchInput.value.length);
+      }
+    }, 0);
+  }
+
   function toggleScrollTopButton() {
     if (!scrollTopButton) return;
 
@@ -731,6 +743,7 @@
   }
 
   installSearch();
+  focusSearchInput();
   installPostLocMetrics();
   installHeadingAnchors();
   installCopyButtons();

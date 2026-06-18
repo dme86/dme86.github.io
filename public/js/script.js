@@ -243,6 +243,7 @@
   function applyLocMetric(postElement, locCount) {
     var metric = postElement.querySelector('.js-code-metric');
     var value = postElement.querySelector('.js-loc-count');
+    var readTimeSeparator = postElement.querySelector('.js-read-time-separator');
 
     if (!metric || !value) {
       return;
@@ -251,8 +252,10 @@
     if (locCount > 0) {
       value.textContent = locCount;
       metric.hidden = false;
+      if (readTimeSeparator) readTimeSeparator.hidden = true;
     } else {
       metric.hidden = true;
+      if (readTimeSeparator) readTimeSeparator.hidden = false;
     }
   }
 

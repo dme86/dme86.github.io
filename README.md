@@ -1,50 +1,39 @@
-# Local development
+# dme86.github.io
 
-## Ruby / Jekyll
+This repository contains the Jekyll source for https://dme86.github.io.
 
-The site can be served locally with Bundler and Jekyll:
+## Local development
+
+The local workflow uses `make` and [asdf](https://asdf-vm.com/) so the Ruby
+version, Bundler, and gems are reproducible.
+
+### Prerequisites
+
+Install `asdf` first. The Makefile installs the Ruby plugin, the Ruby version
+from `.tool-versions`, Bundler, and the project gems.
+
+### Start the site
 
 ```sh
-gem install --user-install bundler:2.4.17
-bundle config set --local path .bundle/vendor
-bundle install
-bundle exec jekyll serve --host 127.0.0.1 --port 4000
+make serve
 ```
 
 Then open http://127.0.0.1:4000/.
 
-The bundle is installed below `.bundle/`, which is ignored by Git. This keeps
-local gems out of the repository and avoids writing into the system Ruby
-installation.
+`make serve` runs the full local setup first, so a fresh checkout should only
+need that one command after `asdf` itself is available.
 
-## Podman
+### Useful targets
 
-This project utilizes [Podman](https://podman.io/) for local development and containerization. [Podman](https://podman.io/) is a daemonless container engine that allows you to run and manage containers without the need for a background daemon process. Follow the steps below to set up and run the project using [Podman](https://podman.io/).
+```sh
+make install
+make build
+make clean
+```
 
-### Prerequisites
+- `make install` installs Ruby through asdf, installs Bundler, and installs the
+  gems into `.bundle/vendor`.
+- `make build` builds the static site into `_site`.
+- `make clean` removes generated Jekyll output.
 
--   [Podman](https://podman.io/) should be installed on your system.
-
-### Local Changes
-
-1.  Make the necessary changes to the project files according to your requirements.
-
-2.  Run the following command to build the Podman image:
-
-	    podman machine start
-	    podman build -t website .
-
-This command builds the Podman image based on the project files and tags it with the name "website". Adjust the tag name as needed.
-
-
-### Running the Container
-
-1.  Execute the following command to start the container:
-
-		podman run -p 4000:4000 website
-
-This command runs the container based on the previously built image and maps port 4000 of the container to the same port on your host machine.
-
-2.  Open your web browser and visit http://0.0.0.0:4000/ or http://localhost:4000/ to access the running application.
-
-That's it! You can now make local changes to the project, build the Podman image, and run the container to test and view your changes.
+Generated files and local gems are ignored by Git.

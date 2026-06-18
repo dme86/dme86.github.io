@@ -90,7 +90,7 @@ title: Topics
                   <span>&middot;</span>
                   <span>{{ read_time }} min read</span>
                 </p>
-                <h3><a href="{{ post.url | absolute_url }}">{{ post.title }}</a></h3>
+                <h3><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h3>
                 <p class="topic-post-excerpt">{{ post.excerpt | strip_html | normalize_whitespace | truncate: 180 }}</p>
                 <p class="topic-post-tags">
                   {% for post_tag in post.tags %}
@@ -127,7 +127,7 @@ title: Topics
                   <span>&middot;</span>
                   <span>{{ read_time }} min read</span>
                 </p>
-                <h3><a href="{{ post.url | absolute_url }}">{{ post.title }}</a></h3>
+                <h3><a href="{{ post.url | relative_url }}">{{ post.title }}</a></h3>
                 <p class="topic-post-excerpt">{{ post.excerpt | strip_html | normalize_whitespace | truncate: 180 }}</p>
                 <p class="topic-post-tags">
                   {% for post_tag in post.tags %}

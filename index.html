@@ -9,7 +9,7 @@ title: Home
   {% assign read_time = word_count | minus: 1 | divided_by: 200 | plus: 1 %}
   <div class="post">
     <h1 class="post-title">
-      <a href="{{ post.url | absolute_url }}">
+      <a href="{{ post.url | relative_url }}">
         {{ post.title }}
       </a>
     </h1>
@@ -17,7 +17,7 @@ title: Home
     {% include post-meta.html date=post.date word_count=word_count read_time=read_time %}
 
     {{ post.excerpt }}
-    <a href="{{ post.url | absolute_url }}" class="read-more">Read more</a>
+    <a href="{{ post.url | relative_url }}" class="read-more">Read more</a>
   </div>
   {% endfor %}
 </div>
@@ -29,15 +29,15 @@ title: Home
 
 <div class="pagination">
   {% if paginator.next_page %}
-    <a class="pagination-item older" href="{{ paginator.next_page_path | absolute_url }}">Older</a>
+    <a class="pagination-item older" href="{{ paginator.next_page_path | relative_url }}">Older</a>
   {% else %}
     <span class="pagination-item older">Older</span>
   {% endif %}
   {% if paginator.previous_page %}
     {% if paginator.page == 2 %}
-      <a class="pagination-item newer" href="{{ '/' | absolute_url }}">Newer</a>
+      <a class="pagination-item newer" href="{{ '/' | relative_url }}">Newer</a>
     {% else %}
-      <a class="pagination-item newer" href="{{ paginator.previous_page_path | absolute_url }}">Newer</a>
+      <a class="pagination-item newer" href="{{ paginator.previous_page_path | relative_url }}">Newer</a>
     {% endif %}
   {% else %}
     <span class="pagination-item newer">Newer</span>

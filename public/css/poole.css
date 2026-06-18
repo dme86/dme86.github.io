@@ -47,10 +47,31 @@ body {
   padding: 0;
 }
 
+:root {
+  color-scheme: dark;
+  --color-bg: #242526;
+  --color-bg-elevated: #2c2e31;
+  --color-bg-soft: #33363a;
+  --color-bg-muted: #292b2e;
+  --color-text: #dedbd2;
+  --color-text-strong: #f1eee7;
+  --color-text-muted: #aaa59a;
+  --color-text-subtle: #827e75;
+  --color-border: #45484d;
+  --color-border-muted: #383b3f;
+  --color-link: #8fc9c2;
+  --color-link-hover: #d8b46a;
+  --color-code: #f0a6a6;
+  --color-success: #95c7a4;
+  --color-panel-gradient: linear-gradient(135deg, #303236 0%, #292b2e 100%);
+  --shadow-soft: 0 14px 35px rgba(0, 0, 0, .18);
+}
+
 html {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 16px;
   line-height: 1.5;
+  background-color: var(--color-bg);
 }
 @media (min-width: 38em) {
   html {
@@ -59,15 +80,15 @@ html {
 }
 
 body {
-  color: #515151;
-  background-color: #fff;
+  color: var(--color-text);
+  background-color: var(--color-bg);
   -webkit-text-size-adjust: 100%;
       -ms-text-size-adjust: 100%;
 }
 
 /* No `:visited` state is required by default (browsers will use `a`) */
 a {
-  color: #268bd2;
+  color: var(--color-link);
   text-decoration: none;
 }
 a strong {
@@ -76,6 +97,7 @@ a strong {
 /* `:focus` is linked to `:hover` for basic accessibility */
 a:hover,
 a:focus {
+  color: var(--color-link-hover);
   text-decoration: underline;
 }
 
@@ -84,7 +106,7 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: .5rem;
   font-weight: bold;
   line-height: 1.25;
-  color: #313131;
+  color: var(--color-text-strong);
   text-rendering: optimizeLegibility;
 }
 h1 {
@@ -110,7 +132,7 @@ p {
 }
 
 strong {
-  color: #303030;
+  color: var(--color-text-strong);
 }
 
 
@@ -132,19 +154,19 @@ hr {
   position: relative;
   margin: 1.5rem 0;
   border: 0;
-  border-top: 1px solid #eee;
-  border-bottom: 1px solid #fff;
+  border-top: 1px solid var(--color-border-muted);
+  border-bottom: 1px solid var(--color-border);
 }
 
 abbr {
   font-size: 85%;
   font-weight: bold;
-  color: #555;
+  color: var(--color-text-muted);
   text-transform: uppercase;
 }
 abbr[title] {
   cursor: help;
-  border-bottom: 1px dotted #e5e5e5;
+  border-bottom: 1px dotted var(--color-border);
 }
 
 /* Code */
@@ -155,8 +177,8 @@ pre {
 code {
   padding: .25em .5em;
   font-size: 85%;
-  color: #bf616a;
-  background-color: #f9f9f9;
+  color: var(--color-code);
+  background-color: var(--color-bg-soft);
   border-radius: 3px;
 }
 pre {
@@ -170,7 +192,7 @@ pre {
   white-space: pre-wrap;
   word-break: break-all;
   word-wrap: break-word;
-  background-color: #f9f9f9;
+  background-color: var(--color-bg-soft);
 }
 pre code {
   padding: 0;
@@ -214,8 +236,8 @@ pre code {
 blockquote {
   padding: .5rem 1rem;
   margin: .8rem 0;
-  color: #7a7a7a;
-  border-left: .25rem solid #e5e5e5;
+  color: var(--color-text-muted);
+  border-left: .25rem solid var(--color-border);
 }
 blockquote p:last-child {
   margin-bottom: 0;
@@ -238,17 +260,17 @@ img {
 table {
   margin-bottom: 1rem;
   width: 100%;
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--color-border);
   border-collapse: collapse;
 }
 td,
 th {
   padding: .25rem .5rem;
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--color-border);
 }
 tbody tr:nth-child(odd) td,
 tbody tr:nth-child(odd) th {
-  background-color: #f9f9f9;
+  background-color: var(--color-bg-muted);
 }
 
 
@@ -274,8 +296,8 @@ tbody tr:nth-child(odd) th {
 .message {
   margin-bottom: 1rem;
   padding: 1rem;
-  color: #717171;
-  background-color: #f9f9f9;
+  color: var(--color-text-muted);
+  background-color: var(--color-bg-elevated);
 }
 
 
@@ -308,15 +330,15 @@ tbody tr:nth-child(odd) th {
 .masthead-title {
   margin-top: 0;
   margin-bottom: 0;
-  color: #505050;
+  color: var(--color-text-strong);
 }
 .masthead-title a {
-  color: #505050;
+  color: var(--color-text-strong);
 }
 .masthead-title small {
   font-size: 75%;
   font-weight: 400;
-  color: #c0c0c0;
+  color: var(--color-text-subtle);
   letter-spacing: 0;
 }
 
@@ -337,7 +359,7 @@ tbody tr:nth-child(odd) th {
 .page-title,
 .post-title,
 .post-title a {
-  color: #303030;
+  color: var(--color-text-strong);
 }
 .page-title,
 .post-title {
@@ -349,14 +371,14 @@ tbody tr:nth-child(odd) th {
   display: block;
   margin-top: -.5rem;
   margin-bottom: 1rem;
-  color: #9a9a9a;
+  color: var(--color-text-muted);
 }
 
 /* Related posts */
 .related {
   padding-top: 2rem;
   padding-bottom: 2rem;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--color-border-muted);
 }
 .related-posts {
   padding-left: 0;
@@ -367,10 +389,10 @@ tbody tr:nth-child(odd) th {
 }
 .related-posts li small {
   font-size: 75%;
-  color: #999;
+  color: var(--color-text-subtle);
 }
 .related-posts li a:hover {
-  color: #268bd2;
+  color: var(--color-link-hover);
   text-decoration: none;
 }
 .related-posts li a:hover small {
@@ -390,7 +412,7 @@ tbody tr:nth-child(odd) th {
   margin-left: -1rem;
   margin-right: -1rem;
   font-family: "PT Sans", Helvetica, Arial, sans-serif;
-  color: #ccc;
+  color: var(--color-text-subtle);
   text-align: center;
 }
 
@@ -398,7 +420,7 @@ tbody tr:nth-child(odd) th {
 .pagination-item {
   display: block;
   padding: 1rem;
-  border: 1px solid #eee;
+  border: 1px solid var(--color-border);
 }
 .pagination-item:first-child {
   margin-bottom: -1px;
@@ -406,7 +428,7 @@ tbody tr:nth-child(odd) th {
 
 /* Only provide a hover state for linked pagination items */
 a.pagination-item:hover {
-  background-color: #f5f5f5;
+  background-color: var(--color-bg-soft);
 }
 
 @media (min-width: 30em) {

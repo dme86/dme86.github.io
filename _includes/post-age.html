@@ -19,9 +19,9 @@ few minutes old
 {% elsif age_days < 7 %}
 {% if age_days == 1 %}1 day old{% else %}{{ age_days }} days old{% endif %}
 {% elsif age_days < 30 %}
-{% if age_weeks == 1 %}1 week old{% else %}{{ age_weeks }} weeks old{% endif %}
+{% if age_weeks == 1 %}over a week old{% else %}{{ age_weeks }} weeks old{% endif %}
 {% elsif age_days < 365 %}
-{% if age_months == 1 %}1 month old{% else %}{{ age_months }} months old{% endif %}
+{% if age_months == 1 %}over a month old{% else %}{{ age_months }} months old{% endif %}
 {% elsif age_days < 730 %}
 over a year old
 {% else %}

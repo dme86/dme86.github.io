@@ -326,11 +326,11 @@
     }
 
     if (ageDays < 30) {
-      return ageWeeks === 1 ? '1 week old' : ageWeeks + ' weeks old';
+      return ageWeeks === 1 ? 'over a week old' : ageWeeks + ' weeks old';
     }
 
     if (ageDays < 365) {
-      return ageMonths === 1 ? '1 month old' : ageMonths + ' months old';
+      return ageMonths === 1 ? 'over a month old' : ageMonths + ' months old';
     }
 
     if (ageDays < 730) {

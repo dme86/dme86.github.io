@@ -1,0 +1,29 @@
+{% assign now_seconds = site.time | date: "%s" | plus: 0 %}
+{% assign post_seconds = include.date | date: "%s" | plus: 0 %}
+{% assign age_seconds = now_seconds | minus: post_seconds %}
+{% if age_seconds < 0 %}
+  {% assign age_seconds = 0 %}
+{% endif %}
+{% assign age_minutes = age_seconds | divided_by: 60 %}
+{% assign age_hours = age_seconds | divided_by: 3600 %}
+{% assign age_days = age_seconds | divided_by: 86400 %}
+{% assign age_weeks = age_days | divided_by: 7 %}
+{% assign age_months = age_days | divided_by: 30 %}
+{% assign age_years = age_days | divided_by: 365 %}
+{% if age_minutes < 10 %}
+few minutes old
+{% elsif age_hours < 1 %}
+{{ age_minutes }} minutes old
+{% elsif age_hours < 24 %}
+{% if age_hours == 1 %}1 hour old{% else %}{{ age_hours }} hours old{% endif %}
+{% elsif age_days < 7 %}
+{% if age_days == 1 %}1 day old{% else %}{{ age_days }} days old{% endif %}
+{% elsif age_days < 30 %}
+{% if age_weeks == 1 %}1 week old{% else %}{{ age_weeks }} weeks old{% endif %}
+{% elsif age_days < 365 %}
+{% if age_months == 1 %}1 month old{% else %}{{ age_months }} months old{% endif %}
+{% elsif age_days < 730 %}
+over a year old
+{% else %}
+{{ age_years }} years old
+{% endif %}

@@ -85,8 +85,9 @@ title: Topics
                 {% assign read_time = 1 %}
               {% endif %}
               <article class="topic-post-card">
+                {% capture post_age %}{% include post-age.html date=post.date %}{% endcapture %}
                 <p class="topic-post-meta">
-                  <span>{{ post.date | date: "%B %-d, %Y" }}</span>
+                  <span>{{ post.date | date: "%B %-d, %Y" }} <span class="post-age js-post-age" data-post-date="{{ post.date | date_to_xmlschema }}">({{ post_age | strip }})</span></span>
                   <span>&middot;</span>
                   <span>{{ read_time }} min read</span>
                 </p>
@@ -122,8 +123,9 @@ title: Topics
                 {% assign read_time = 1 %}
               {% endif %}
               <article class="topic-post-card">
+                {% capture post_age %}{% include post-age.html date=post.date %}{% endcapture %}
                 <p class="topic-post-meta">
-                  <span>{{ post.date | date: "%B %-d, %Y" }}</span>
+                  <span>{{ post.date | date: "%B %-d, %Y" }} <span class="post-age js-post-age" data-post-date="{{ post.date | date_to_xmlschema }}">({{ post_age | strip }})</span></span>
                   <span>&middot;</span>
                   <span>{{ read_time }} min read</span>
                 </p>

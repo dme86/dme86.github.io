@@ -9,6 +9,7 @@
   var post = articleWordCount ? document.querySelector('.post') : null;
   var links = document.querySelectorAll('a[href]');
   var codeBlocks = document.querySelectorAll('pre');
+  var postAgeElements = document.querySelectorAll('.js-post-age');
   var searchInput = document.querySelector('#site-search');
   var searchResults = document.querySelector('#search-results');
   var searchMeta = document.querySelector('#search-meta');
@@ -291,6 +292,64 @@
         .catch(function() {
           applyLocMetric(postElement, 0);
         });
+    });
+  }
+
+  function formatPostAge(publishedAt) {
+    var ageMilliseconds = Date.now() - publishedAt.getTime();
+
+    if (!Number.isFinite(ageMilliseconds) || ageMilliseconds < 0) {
+      ageMilliseconds = 0;
+    }
+
+    var ageMinutes = Math.floor(ageMilliseconds / 60000);
+    var ageHours = Math.floor(ageMilliseconds / 3600000);
+    var ageDays = Math.floor(ageMilliseconds / 86400000);
+    var ageWeeks = Math.floor(ageDays / 7);
+    var ageMonths = Math.floor(ageDays / 30);
+    var ageYears = Math.floor(ageDays / 365);
+
+    if (ageMinutes < 10) {
+      return 'few minutes old';
+    }
+
+    if (ageHours < 1) {
+      return ageMinutes + ' minutes old';
+    }
+
+    if (ageHours < 24) {
+      return ageHours === 1 ? '1 hour old' : ageHours + ' hours old';
+    }
+
+    if (ageDays < 7) {
+      return ageDays === 1 ? '1 day old' : ageDays + ' days old';
+    }
+
+    if (ageDays < 30) {
+      return ageWeeks === 1 ? '1 week old' : ageWeeks + ' weeks old';
+    }
+
+    if (ageDays < 365) {
+      return ageMonths === 1 ? '1 month old' : ageMonths + ' months old';
+    }
+
+    if (ageDays < 730) {
+      return 'over a year old';
+    }
+
+    return ageYears + ' years old';
+  }
+
+  function updatePostAges() {
+    postAgeElements.forEach(function(element) {
+      var dateValue = element.getAttribute('data-post-date');
+      var publishedAt = dateValue ? new Date(dateValue) : null;
+
+      if (!publishedAt || Number.isNaN(publishedAt.getTime())) {
+        return;
+      }
+
+      element.textContent = '(' + formatPostAge(publishedAt) + ')';
     });
   }
 
@@ -745,6 +804,10 @@
   installSearch();
   focusSearchInput();
   installPostLocMetrics();
+  if (postAgeElements.length) {
+    updatePostAges();
+    window.setInterval(updatePostAges, 60000);
+  }
   installHeadingAnchors();
   installCopyButtons();
   markExternalLinks();

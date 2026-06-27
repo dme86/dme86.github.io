@@ -1,0 +1,58 @@
+{% assign related_limit = 3 %}
+{% assign related_count = 0 %}
+{% capture related_urls %}|{{ page.url }}|{% endcapture %}
+
+<div class="related">
+  <h2>Related posts</h2>
+  <ul class="related-posts">
+    {% if page.tags and page.tags.size > 0 %}
+      {% assign max_shared_tags = page.tags | size %}
+      {% for target_score in (1..max_shared_tags) reversed %}
+        {% for candidate in site.posts %}
+          {% if related_count < related_limit %}
+            {% capture candidate_key %}|{{ candidate.url }}|{% endcapture %}
+            {% unless related_urls contains candidate_key %}
+              {% assign shared_tag_count = 0 %}
+              {% for tag in page.tags %}
+                {% if candidate.tags contains tag %}
+                  {% assign shared_tag_count = shared_tag_count | plus: 1 %}
+                {% endif %}
+              {% endfor %}
+
+              {% if shared_tag_count == target_score %}
+                <li>
+                  <h3>
+                    <a href="{{ candidate.url | relative_url }}">
+                      {{ candidate.title }}
+                      <small>{{ candidate.date | date_to_string }}</small>
+                    </a>
+                  </h3>
+                </li>
+                {% assign related_count = related_count | plus: 1 %}
+                {% capture related_urls %}{{ related_urls }}{{ candidate_key }}{% endcapture %}
+              {% endif %}
+            {% endunless %}
+          {% endif %}
+        {% endfor %}
+      {% endfor %}
+    {% endif %}
+
+    {% for candidate in site.posts %}
+      {% if related_count < related_limit %}
+        {% capture candidate_key %}|{{ candidate.url }}|{% endcapture %}
+        {% unless related_urls contains candidate_key %}
+          <li>
+            <h3>
+              <a href="{{ candidate.url | relative_url }}">
+                {{ candidate.title }}
+                <small>{{ candidate.date | date_to_string }}</small>
+              </a>
+            </h3>
+          </li>
+          {% assign related_count = related_count | plus: 1 %}
+          {% capture related_urls %}{{ related_urls }}{{ candidate_key }}{% endcapture %}
+        {% endunless %}
+      {% endif %}
+    {% endfor %}
+  </ul>
+</div>

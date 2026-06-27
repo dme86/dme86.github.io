@@ -223,6 +223,157 @@ If a one-line patch update cannot move through the pipeline with confidence, the
 
 Renovate is often less a dependency bot than a recurring test of delivery-system maturity.
 
+## Scaling Renovate Across Many Repositories
+
+Renovate stops being a repository-local concern when an organization operates many similar services.
+
+Imagine 20 Go services maintained by different teams. They use many of the same libraries, base images, GitHub Actions, linters, OpenTelemetry components, test packages, and internal modules.
+
+If a common dependency publishes an update, opening 20 merge requests may be technically correct. Asking 20 teams to independently rediscover the same basic risk is not.
+
+Each application still has unique behavior and must prove that the update works locally. But the organization should not repeat the common part of the analysis from zero in every repository.
+
+> Twenty teams should not rediscover the same dependency risk twenty times.
+
+At that scale, Renovate becomes a platform and process topic.
+
+### Shared Presets Define the Common Policy
+
+Organization-wide Renovate presets provide a common starting point:
+
+- patch, minor, and major update policy
+- cooldown periods
+- schedules
+- concurrency limits
+- standard labels
+- grouping for common package families
+- dashboard approval for major versions
+- automerge rules
+- known package exceptions
+
+Repositories extend the shared preset instead of copying a large configuration file. Policy changes can then be reviewed once and adopted consistently.
+
+This does not mean every repository must behave identically. A command-line tool, a public library, and a payment service have different runtime risks. Teams still need repo-specific rules for unusual dependencies, release constraints, unsupported versions, and critical execution paths.
+
+The useful model is **central defaults with local exceptions**.
+
+A central platform or enablement team owns the common policy. Application teams own the correctness of their services. Neither side can outsource its responsibility to the other.
+
+### Use a Dependency Canary
+
+A dependency canary is a representative test repository or service that receives common updates before they spread broadly.
+
+For the Go example, the canary should exercise the patterns used across the organization:
+
+- module resolution and reproducible builds
+- common internal libraries
+- HTTP and gRPC clients or servers
+- logging and telemetry
+- database access
+- container construction
+- standard linting and static analysis
+- the organization's CI templates
+
+It should not be a toy repository containing an empty `main()` function. A canary that does not resemble real applications proves very little.
+
+The canary pipeline should be deliberately strong:
+
+- unit and integration tests
+- `go test`, `go vet`, and the organization's static analysis
+- vulnerability scanning
+- license or policy checks where relevant
+- container builds
+- image scanning
+- smoke tests
+- representative service startup and health checks
+
+When an update breaks common tooling or shared dependency patterns, the platform team learns once. It can hold the update, add a temporary constraint, adjust the preset, fix a shared library, or publish migration guidance before every team receives the same failure.
+
+The canary can run ahead of the broader schedule, while other repositories use a longer cooldown or an approval gate. The exact mechanics matter less than the sequence: validate the common path first, then allow normal repository updates to proceed.
+
+### Central Prevalidation Does Not Replace Local CI
+
+The dependency canary proves that an update works with representative organizational patterns. It cannot prove that the update works in every application.
+
+One service may use an API the canary does not exercise. Another may depend on specific database behavior, concurrency assumptions, generated code, or an unusual build tag. A common library may pass the canary and still expose an application-specific regression.
+
+Therefore, every consuming repository must still run its own required pipeline.
+
+The right model is:
+
+```text
+Central prevalidation
+    ↓
+Shared policy allows the update to spread
+    ↓
+Local repository verification
+    ↓
+Application deployment and runtime feedback
+```
+
+This is similar to promoting base images or application container images.
+
+A platform team can build a base image, scan it, generate an SBOM, sign it, and run common compatibility tests. Those central checks validate the shared artifact. Each consuming application must still rebuild against the image, run its own tests, create its own container, and prove that the service starts and behaves correctly.
+
+Central checks remove duplicated discovery. Local checks preserve application ownership.
+
+> Without this model, Renovate scales noise. With this model, Renovate scales flow.
+
+### A Concrete Promotion Flow
+
+The sequence must be explicit. Otherwise, the canary becomes another repository that happens to run tests while the same update reaches every application at the same time.
+
+A practical organization-wide flow looks like this:
+
+1. **Renovate updates the dependency canary first.**
+   The canary receives common dependency updates ahead of application repositories.
+
+2. **The central pipeline validates the new version.**
+   Tests, static analysis, vulnerability scanning, container builds, and smoke or integration tests evaluate the shared usage patterns.
+
+3. **A failed version is blocked centrally.**
+   The platform owner keeps or adds a version constraint in the shared preset or dependency promotion manifest. One team investigates the common failure and publishes the result instead of 20 teams starting the same investigation.
+
+4. **A successful version is promoted centrally.**
+   Automation or the platform owner marks the version as approved by updating the shared preset, allowlist, or promotion manifest.
+
+5. **Renovate proposes the update in application repositories.**
+   Only after central approval does the normal organization-wide schedule allow the version to reach the 20 services.
+
+6. **Every application runs its own CI.**
+   Local tests prove application-specific compatibility. A failure caused by unique service behavior remains with that service team. A failure indicating a common pattern is escalated back to the central owner.
+
+The implementation can use a shared preset with version constraints, a small promotion manifest, or an equivalent policy mechanism. The important property is that broad rollout depends on a successful canary result rather than on timing alone.
+
+This divides the work correctly:
+
+```text
+Central team:
+  Is this dependency version acceptable for our common stack?
+
+Application team:
+  Does the centrally validated version work in this specific service?
+```
+
+The first question is answered once. The second is answered by every application because only its own pipeline understands its runtime behavior.
+
+### Share Findings, Not Just Configuration
+
+The shared preset is one output of the platform process. The other output is knowledge.
+
+When the canary identifies a breaking release, teams need useful context:
+
+- which package and version are affected
+- which common pattern failed
+- whether the update is blocked or merely requires review
+- which migration steps are known
+- when the organization expects to retry
+- who owns the escalation
+
+This prevents 20 teams from investigating the same failure in parallel and producing 20 different workarounds.
+
+The objective is not central control over every dependency decision. It is to centralize repeated evidence while leaving application-specific judgment with the teams that understand the applications.
+
 ## Avoiding Renovate Noise
 
 A good Renovate configuration protects developer attention.
@@ -421,7 +572,15 @@ The answers show where to improve the rules and where to improve the engineering
 
 Automation does not remove ownership.
 
-Someone must maintain the Renovate configuration, review the Dependency Dashboard, investigate blocked updates, and schedule major migrations. In a small team, this can rotate. In a platform organization, shared presets can define sensible defaults while repository owners handle domain-specific exceptions.
+Someone must maintain the Renovate configuration, review the Dependency Dashboard, investigate blocked updates, and schedule major migrations. In a small team, this can rotate.
+
+In a platform organization, ownership must be explicit:
+
+- someone owns the shared Renovate preset
+- someone owns the dependency canary and keeps it representative
+- someone owns the escalation path for updates that fail across repositories
+- someone decides when a package needs stricter review or a temporary block
+- repository teams own local exceptions and application-specific verification
 
 What should not happen is assigning every update to a generic "developers" group and assuming someone will eventually care.
 

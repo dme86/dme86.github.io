@@ -226,6 +226,7 @@ Renovate is often less a dependency bot than a recurring test of delivery-system
 ## Scaling Renovate Across Many Repositories
 
 Renovate stops being a repository-local concern when an organization operates many similar services.
+It does not provide a complete global dependency promotion system out of the box. Renovate gives you update detection, repository automation, presets, constraints, schedules, grouping, and merge request workflows. The promotion layer still has to be designed deliberately around it.
 
 Imagine 20 Go services maintained by different teams. They use many of the same libraries, base images, GitHub Actions, linters, OpenTelemetry components, test packages, and internal modules.
 
@@ -343,7 +344,9 @@ A practical organization-wide flow looks like this:
 6. **Every application runs its own CI.**
    Local tests prove application-specific compatibility. A failure caused by unique service behavior remains with that service team. A failure indicating a common pattern is escalated back to the central owner.
 
-The implementation can use a shared preset with version constraints, a small promotion manifest, or an equivalent policy mechanism. The important property is that broad rollout depends on a successful canary result rather than on timing alone.
+The implementation can use a shared preset with version constraints, an allowlist, a small promotion manifest, or an equivalent policy mechanism. The important property is that broad rollout depends on a successful canary result rather than on timing alone.
+
+The shared preset defines the policy. The canary creates early evidence. The promotion manifest controls broad rollout. The application pipeline provides local truth.
 
 This divides the work correctly:
 

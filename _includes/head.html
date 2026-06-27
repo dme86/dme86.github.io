@@ -7,6 +7,16 @@
   <meta name="color-scheme" content="dark">
   <meta name="theme-color" content="#242526">
 
+  {% capture meta_title %}
+    {% if page.title and page.title != "Home" %}
+      {{ page.title }} · {{ site.title }}
+    {% else %}
+      {{ site.title }} · {{ site.tagline }}
+    {% endif %}
+  {% endcapture %}
+  {% assign meta_title = meta_title | strip %}
+  {% assign meta_description = page.description | default: site.description | default: site.tagline %}
+
   <title>
     {% if page.title == "Home" %}
       {{ site.title }} &middot; {{ site.tagline }}
@@ -15,6 +25,27 @@
     {% endif %}
   </title>
 
+  <meta name="description" content="{{ meta_description | escape }}">
+
+  <meta property="og:type" content="{% if page.layout == 'post' %}article{% else %}website{% endif %}">
+  <meta property="og:title" content="{{ meta_title | escape }}">
+  <meta property="og:description" content="{{ meta_description | escape }}">
+  <meta property="og:url" content="{{ page.url | default: '/' | absolute_url }}">
+  <meta property="og:site_name" content="{{ site.title | escape }}">
+  <meta property="og:image" content="{{ '/public/og-image.png' | absolute_url }}">
+  <meta property="og:image:type" content="image/png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="1200">
+  <meta property="og:image:alt" content="Logo von {{ site.author.name | escape }}">
+  {% if page.layout == "post" and page.date %}
+  <meta property="article:published_time" content="{{ page.date | date_to_xmlschema }}">
+  {% endif %}
+
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="{{ meta_title | escape }}">
+  <meta name="twitter:description" content="{{ meta_description | escape }}">
+  <meta name="twitter:image" content="{{ '/public/og-image.png' | absolute_url }}">
+  <meta name="twitter:image:alt" content="Logo von {{ site.author.name | escape }}">
 
   {% if page.url and site.baseurl %}
   <link rel="canonical" href="{{ page.url | absolute_url }}">
@@ -25,7 +56,9 @@
   <link rel="stylesheet" href="{{ '/public/css/lanyon.css' | relative_url }}">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT+Serif:400,400italic,700%7CPT+Sans:400">
 
-  <link rel="apple-touch-icon-precomposed" sizes="144x144" href="{{ '/public/apple-touch-icon-precomposed.png' | relative_url }}">
+  <link rel="icon" type="image/png" sizes="32x32" href="{{ '/public/favicon-32x32.png' | relative_url }}">
+  <link rel="icon" type="image/png" sizes="16x16" href="{{ '/public/favicon-16x16.png' | relative_url }}">
+  <link rel="apple-touch-icon" sizes="180x180" href="{{ '/public/apple-touch-icon.png' | relative_url }}">
   <link rel="shortcut icon" href="{{ '/public/favicon.ico' | relative_url }}">
 
   <link rel="alternate" type="application/atom+xml" title="Atom Feed" href="{{ '/feed.xml' | relative_url }}">

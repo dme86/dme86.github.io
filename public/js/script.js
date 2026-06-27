@@ -7,9 +7,6 @@
   var scrollTopProgress = document.querySelector('#scroll-top-progress');
   var articleWordCount = document.querySelector('#word-count');
   var post = articleWordCount ? document.querySelector('.post') : null;
-  var links = document.querySelectorAll('a[href]');
-  var codeBlocks = document.querySelectorAll('pre');
-  var postAgeElements = document.querySelectorAll('.js-post-age');
   var searchInput = document.querySelector('#site-search');
   var searchResults = document.querySelector('#search-results');
   var searchMeta = document.querySelector('#search-meta');
@@ -49,7 +46,7 @@
   function installCopyButtons() {
     var codeBlockIndex = 0;
 
-    codeBlocks.forEach(function(pre) {
+    document.querySelectorAll('pre').forEach(function(pre) {
       var wrapper = pre.parentElement;
 
       if (!wrapper || wrapper.classList.contains('code-block')) {
@@ -111,6 +108,11 @@
         toolbar.appendChild(button);
       }
 
+      if (button.getAttribute('data-copy-ready') === 'true') {
+        return;
+      }
+
+      button.setAttribute('data-copy-ready', 'true');
       button.addEventListener('click', function() {
         copyText(pre.innerText).then(function() {
           button.textContent = 'Copied';
@@ -261,12 +263,20 @@
       var postLink = postElement.querySelector('.post-title a');
       var postBody = postElement.querySelector('.post-header') ? postElement : null;
 
+      if (postElement.getAttribute('data-loc-state')) {
+        return;
+      }
+
+      postElement.setAttribute('data-loc-state', 'loading');
+
       if (postBody) {
         applyLocMetric(postElement, countCodeLinesFromRoot(postElement));
+        postElement.setAttribute('data-loc-state', 'ready');
         return;
       }
 
       if (!postLink) {
+        postElement.setAttribute('data-loc-state', 'ready');
         return;
       }
 
@@ -284,13 +294,16 @@
           var article = doc.querySelector('.post');
 
           if (!article) {
+            postElement.setAttribute('data-loc-state', 'ready');
             return;
           }
 
           applyLocMetric(postElement, countCodeLinesFromRoot(article));
+          postElement.setAttribute('data-loc-state', 'ready');
         })
         .catch(function() {
           applyLocMetric(postElement, 0);
+          postElement.setAttribute('data-loc-state', 'ready');
         });
     });
   }
@@ -341,7 +354,7 @@
   }
 
   function updatePostAges() {
-    postAgeElements.forEach(function(element) {
+    document.querySelectorAll('.js-post-age').forEach(function(element) {
       var dateValue = element.getAttribute('data-post-date');
       var publishedAt = dateValue ? new Date(dateValue) : null;
 
@@ -373,7 +386,7 @@
   }
 
   function markExternalLinks() {
-    links.forEach(function(link) {
+    document.querySelectorAll('a[href]').forEach(function(link) {
       var href = link.getAttribute('href');
 
       if (!href || href.charAt(0) === '#' || href.indexOf('mailto:') === 0 || href.indexOf('tel:') === 0) {
@@ -768,6 +781,116 @@
     scrollTopButton.classList.add('has-progress');
   }
 
+  function installInfiniteScroll() {
+    var postsContainer = document.querySelector('#post-list');
+    var pagination = document.querySelector('#post-pagination');
+    var nextPageLink = pagination ? pagination.querySelector('a.older') : null;
+    var status = document.querySelector('#infinite-scroll-status');
+    var sentinel = document.querySelector('#infinite-scroll-sentinel');
+    var observer = null;
+    var loading = false;
+
+    if (!postsContainer || !pagination || !nextPageLink || !status || !sentinel) {
+      return;
+    }
+
+    pagination.classList.add('has-infinite-scroll');
+    nextPageLink.textContent = 'Load older articles';
+
+    function stopObserving() {
+      if (observer) {
+        observer.disconnect();
+      }
+    }
+
+    function loadNextPage() {
+      if (loading || !nextPageLink.href) {
+        return;
+      }
+
+      loading = true;
+      stopObserving();
+      pagination.classList.add('is-loading');
+      nextPageLink.setAttribute('aria-disabled', 'true');
+      status.textContent = 'Loading older articles...';
+
+      fetch(nextPageLink.href, { headers: { Accept: 'text/html' } })
+        .then(function(response) {
+          if (!response.ok) {
+            throw new Error('Failed to load older articles');
+          }
+
+          return response.text().then(function(html) {
+            return {
+              html: html,
+              url: response.url
+            };
+          });
+        })
+        .then(function(result) {
+          var parser = new DOMParser();
+          var doc = parser.parseFromString(result.html, 'text/html');
+          var olderPosts = Array.from(doc.querySelectorAll('#post-list > .post'));
+          var followingPageLink = doc.querySelector('#post-pagination a.older');
+
+          if (!olderPosts.length) {
+            throw new Error('Older article page contained no articles');
+          }
+
+          olderPosts.forEach(function(olderPost) {
+            postsContainer.appendChild(document.importNode(olderPost, true));
+          });
+
+          installPostLocMetrics();
+          updatePostAges();
+          installHeadingAnchors();
+          installCopyButtons();
+          markExternalLinks();
+
+          if (followingPageLink) {
+            nextPageLink.href = new URL(followingPageLink.getAttribute('href'), result.url).toString();
+            nextPageLink.removeAttribute('aria-disabled');
+            status.textContent = 'Loaded ' + olderPosts.length + ' older articles.';
+
+            if (observer) {
+              observer.observe(sentinel);
+            }
+          } else {
+            nextPageLink.hidden = true;
+            status.textContent = 'All articles loaded.';
+            pagination.classList.add('is-complete');
+          }
+        })
+        .catch(function() {
+          nextPageLink.removeAttribute('aria-disabled');
+          status.textContent = 'Older articles could not be loaded. Use the button to try again.';
+          pagination.classList.add('has-error');
+        })
+        .finally(function() {
+          loading = false;
+          pagination.classList.remove('is-loading');
+        });
+    }
+
+    nextPageLink.addEventListener('click', function(event) {
+      event.preventDefault();
+      pagination.classList.remove('has-error');
+      loadNextPage();
+    });
+
+    if ('IntersectionObserver' in window) {
+      observer = new IntersectionObserver(function(entries) {
+        if (entries.some(function(entry) { return entry.isIntersecting; })) {
+          loadNextPage();
+        }
+      }, {
+        rootMargin: '800px 0px'
+      });
+
+      observer.observe(sentinel);
+    }
+  }
+
   document.addEventListener('click', function(e) {
     var target = e.target;
 
@@ -803,8 +926,9 @@
 
   installSearch();
   focusSearchInput();
+  installInfiniteScroll();
   installPostLocMetrics();
-  if (postAgeElements.length) {
+  if (document.querySelector('.js-post-age')) {
     updatePostAges();
     window.setInterval(updatePostAges, 60000);
   }

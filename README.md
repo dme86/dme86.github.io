@@ -2,6 +2,12 @@
 
 This repository contains the Jekyll source for https://dme86.github.io.
 
+## DME theme
+
+The site uses the custom DME theme, maintained by Daniel Meier. The theme is
+derived from earlier MIT-licensed work; retained copyright and license terms
+are documented in [LICENSE.md](LICENSE.md).
+
 ## Local development
 
 The local workflow uses `make` and [asdf](https://asdf-vm.com/) so the Ruby

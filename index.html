@@ -3,7 +3,7 @@ layout: default
 title: Home
 ---
 
-<div class="posts">
+<div class="posts" id="post-list">
   {% for post in paginator.posts %}
   {% capture reading_estimate %}{% include reading-estimate.html content=post.content %}{% endcapture %}
   {% assign reading_estimate_parts = reading_estimate | strip | split: "|" %}
@@ -24,12 +24,7 @@ title: Home
   {% endfor %}
 </div>
 
-<!-- Mastodon-Link -->
-<div class="mastodon-link">
-  <a rel="me" href="https://mastodon.social/@danielmeier">Mastodon</a>
-</div>
-
-<div class="pagination">
+<div class="pagination" id="post-pagination">
   {% if paginator.next_page %}
     <a class="pagination-item older" href="{{ paginator.next_page_path | relative_url }}">Older</a>
   {% else %}
@@ -44,4 +39,6 @@ title: Home
   {% else %}
     <span class="pagination-item newer">Newer</span>
   {% endif %}
+  <p class="infinite-scroll-status" id="infinite-scroll-status" aria-live="polite"></p>
+  <div class="infinite-scroll-sentinel" id="infinite-scroll-sentinel" aria-hidden="true"></div>
 </div>

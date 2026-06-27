@@ -21,11 +21,11 @@ That is the thinking behind my famous formula:
 
 > **Speed = Process + Automation**
 
+<!--more-->
+
 This is not a decorative slogan. It describes how I think about modern software delivery. Real speed does not come from tools alone, from adding more rules, or from automating everything that moves. Speed emerges when a deliberately designed process is combined with reliable automation.
 
 In this formula, *process* does not mean bureaucracy. It means the simplest explicit flow that solves a demonstrated problem, assigns ownership, handles failure, and produces a measurable outcome. If the process is unclear or unjustified, automation amplifies confusion. If the process is healthy, automation makes good behavior cheap, repeatable, and boring.
-
-<!--more-->
 
 ## Tools and Processes Are Not the Strategy
 

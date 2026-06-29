@@ -712,6 +712,9 @@ a.sidebar-nav-item:focus {
 
 #post-list .post-title a.is-keyboard-selected {
   display: inline-block;
+  padding: .2rem .25rem .25rem;
+  margin: -.2rem -.25rem .1rem;
+  line-height: 1.12;
   border-radius: 6px;
   box-shadow: 0 0 0 .35rem rgba(216, 180, 106, .05);
   background: rgba(216, 180, 106, .06);

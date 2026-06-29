@@ -1636,6 +1636,10 @@ a.pagination-item:hover {
   border-radius: 4px;
 }
 
+.pagination.has-infinite-scroll .pagination-item.older[hidden] {
+  display: none;
+}
+
 .pagination.has-infinite-scroll .pagination-item.newer {
   display: none;
 }

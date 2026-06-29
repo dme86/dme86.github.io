@@ -27,6 +27,7 @@
   var keyboardHintStorageKey = 'dme-keyboard-shortcuts-hint-seen';
   var keyboardNavigationTarget = null;
   var keyboardNavigationFocusElement = null;
+  var keyboardNavigationHighlightElement = null;
   var codeLanguageAllowlist = [
     'yaml', 'yml', 'shell', 'sh', 'bash', 'zsh', 'python', 'py', 'json', 'jinja', 'jinja2',
     'terraform', 'hcl', 'go', 'javascript', 'js', 'typescript', 'ts', 'tsx', 'dockerfile',
@@ -1061,6 +1062,10 @@
       }
     }
 
+    if (keyboardNavigationHighlightElement) {
+      keyboardNavigationHighlightElement.classList.remove('is-keyboard-selected');
+    }
+
     if (keyboardNavigationFocusElement &&
         document.activeElement === keyboardNavigationFocusElement &&
         typeof keyboardNavigationFocusElement.blur === 'function') {
@@ -1069,12 +1074,14 @@
 
     keyboardNavigationTarget = null;
     keyboardNavigationFocusElement = null;
+    keyboardNavigationHighlightElement = null;
   }
 
   function selectKeyboardNavigationTarget(target) {
     clearKeyboardNavigation();
 
     var focusElement = target.querySelector('.post-title a') || target;
+    var highlightElement = focusElement === target ? target : focusElement;
 
     if (focusElement === target && !target.hasAttribute('tabindex')) {
       target.setAttribute('tabindex', '-1');
@@ -1083,7 +1090,8 @@
 
     keyboardNavigationTarget = target;
     keyboardNavigationFocusElement = focusElement;
-    target.classList.add('is-keyboard-selected');
+    keyboardNavigationHighlightElement = highlightElement;
+    highlightElement.classList.add('is-keyboard-selected');
 
     try {
       focusElement.focus({ preventScroll: true });

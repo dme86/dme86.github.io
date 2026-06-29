@@ -710,6 +710,13 @@ a.sidebar-nav-item:focus {
   border-radius: 6px;
 }
 
+#post-list .post-title a.is-keyboard-selected {
+  display: inline-block;
+  border-radius: 6px;
+  box-shadow: 0 0 0 .35rem rgba(216, 180, 106, .05);
+  background: rgba(216, 180, 106, .06);
+}
+
 #post-list > .post.is-keyboard-selected {
   background: rgba(216, 180, 106, .035);
   box-shadow: 0 0 0 .45rem rgba(216, 180, 106, .035);

@@ -346,6 +346,7 @@
       '<div><dt><kbd>gg</kbd></dt><dd>Jump to the top</dd></div>',
       '<div><dt><kbd>G</kbd></dt><dd>Jump to the bottom</dd></div>',
       '<div><dt><kbd>h</kbd></dt><dd>Go to the homepage</dd></div>',
+      '<div><dt><kbd>Backspace</kbd></dt><dd>Go back one page</dd></div>',
       '<div><dt><kbd>/</kbd></dt><dd>Open search</dd></div>',
       '<div><dt><kbd>?</kbd></dt><dd>Show these shortcuts</dd></div>',
       '<div><dt><kbd>Esc</kbd></dt><dd>Close this panel</dd></div>',
@@ -1156,6 +1157,17 @@
         window.scrollTo({ top: 0, behavior: 'auto' });
       } else {
         window.location.assign('/');
+      }
+
+      return;
+    }
+
+    if (event.key === 'Backspace') {
+      event.preventDefault();
+      lastGKeyTime = 0;
+
+      if (window.history.length > 1) {
+        window.history.back();
       }
 
       return;

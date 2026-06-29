@@ -16,8 +16,13 @@
   var keySequenceTimeout = 600;
   var navigationScrollStep = 48;
   var codeOverlay = null;
+  var codeOverlayPreviousFocus = null;
   var keyboardShortcutsOverlay = null;
   var keyboardShortcutsPreviousFocus = null;
+  var keyboardHint = null;
+  var keyboardHintShowTimer = null;
+  var keyboardHintTimer = null;
+  var keyboardHintStorageKey = 'dme-keyboard-shortcuts-hint-seen';
   var codeLanguageAllowlist = [
     'yaml', 'yml', 'shell', 'sh', 'bash', 'zsh', 'python', 'py', 'json', 'jinja', 'jinja2',
     'terraform', 'hcl', 'go', 'javascript', 'js', 'typescript', 'ts', 'tsx', 'dockerfile',
@@ -152,9 +157,12 @@
       '<div class="code-overlay-backdrop" data-code-close="true"></div>',
       '<div class="code-overlay-panel" role="dialog" aria-modal="true" aria-label="Expanded code block">',
       '<div class="code-overlay-toolbar">',
+      '<span class="code-overlay-meta"></span>',
+      '<div class="code-overlay-actions">',
       '<a class="code-overlay-link" href="#" aria-label="Link to this code block">#</a>',
       '<button type="button" class="code-overlay-copy">Copy</button>',
       '<button type="button" class="code-overlay-close" aria-label="Close expanded code block">Close</button>',
+      '</div>',
       '</div>',
       '<div class="code-overlay-content"></div>',
       '</div>'
@@ -174,16 +182,43 @@
   function openCodeOverlay(wrapper) {
     var overlay = ensureCodeOverlay();
     var content = overlay.querySelector('.code-overlay-content');
+    var meta = overlay.querySelector('.code-overlay-meta');
     var link = overlay.querySelector('.code-overlay-link');
     var copyButton = overlay.querySelector('.code-overlay-copy');
+    var closeButton = overlay.querySelector('.code-overlay-close');
     var codeElement = wrapper.querySelector('pre');
 
-    if (!content || !link || !copyButton || !codeElement) {
+    if (!content || !meta || !link || !copyButton || !closeButton || !codeElement) {
       return;
+    }
+
+    var codeText = codeElement.innerText.replace(/\n$/, '');
+    var codeLines = codeText ? codeText.split('\n') : [];
+    var lineCount = codeLines.length;
+    var longestLine = codeLines.reduce(function(longest, line) {
+      return Math.max(longest, line.length);
+    }, 0);
+    var languageContainer = wrapper.matches('[class*="language-"]') ?
+      wrapper :
+      wrapper.querySelector('[class*="language-"]');
+    var languageClass = languageContainer ?
+      Array.from(languageContainer.classList).find(function(className) {
+        return className.indexOf('language-') === 0;
+      }) :
+      null;
+    var language = languageClass ? languageClass.replace('language-', '') : 'code';
+    var overlaySize = 'compact';
+
+    if (lineCount > 36 || longestLine > 100) {
+      overlaySize = 'large';
+    } else if (lineCount > 14 || longestLine > 68) {
+      overlaySize = 'medium';
     }
 
     content.innerHTML = '';
     content.appendChild(codeElement.cloneNode(true));
+    overlay.setAttribute('data-code-size', overlaySize);
+    meta.textContent = language + ' · ' + lineCount + (lineCount === 1 ? ' line' : ' lines');
     link.href = '#' + wrapper.id;
 
     copyButton.textContent = 'Copy';
@@ -201,17 +236,27 @@
       });
     };
 
+    codeOverlayPreviousFocus = document.activeElement;
     overlay.hidden = false;
     document.body.classList.add('has-code-overlay');
+    closeButton.focus();
   }
 
   function closeCodeOverlay() {
-    if (!codeOverlay) {
+    if (!codeOverlay || codeOverlay.hidden) {
       return;
     }
 
     codeOverlay.hidden = true;
     document.body.classList.remove('has-code-overlay');
+
+    if (codeOverlayPreviousFocus &&
+        document.contains(codeOverlayPreviousFocus) &&
+        typeof codeOverlayPreviousFocus.focus === 'function') {
+      codeOverlayPreviousFocus.focus();
+    }
+
+    codeOverlayPreviousFocus = null;
   }
 
   function ensureKeyboardShortcutsOverlay() {
@@ -282,6 +327,82 @@
     }
 
     keyboardShortcutsPreviousFocus = null;
+  }
+
+  function hasSeenKeyboardHint() {
+    try {
+      return window.localStorage.getItem(keyboardHintStorageKey) === 'true';
+    } catch (error) {
+      return false;
+    }
+  }
+
+  function markKeyboardHintAsSeen() {
+    try {
+      window.localStorage.setItem(keyboardHintStorageKey, 'true');
+    } catch (error) {
+      // Storage may be unavailable in strict privacy modes.
+    }
+  }
+
+  function dismissKeyboardHint() {
+    if (keyboardHintShowTimer) {
+      window.clearTimeout(keyboardHintShowTimer);
+      keyboardHintShowTimer = null;
+    }
+
+    if (!keyboardHint || keyboardHint.hidden) {
+      return;
+    }
+
+    if (keyboardHintTimer) {
+      window.clearTimeout(keyboardHintTimer);
+      keyboardHintTimer = null;
+    }
+
+    keyboardHint.classList.remove('is-visible');
+
+    window.setTimeout(function() {
+      if (keyboardHint && !keyboardHint.classList.contains('is-visible')) {
+        keyboardHint.hidden = true;
+      }
+    }, 220);
+  }
+
+  function installKeyboardHint() {
+    if (hasSeenKeyboardHint()) {
+      return;
+    }
+
+    keyboardHint = document.createElement('aside');
+    keyboardHint.className = 'keyboard-hint';
+    keyboardHint.hidden = true;
+    keyboardHint.setAttribute('role', 'status');
+    keyboardHint.setAttribute('aria-live', 'polite');
+    keyboardHint.innerHTML = [
+      '<p>Keyboard user? Press <kbd>?</kbd> to see the shortcuts.</p>',
+      '<button type="button" class="keyboard-hint-close" aria-label="Dismiss keyboard shortcut hint">&times;</button>'
+    ].join('');
+
+    document.body.appendChild(keyboardHint);
+
+    keyboardHint.querySelector('.keyboard-hint-close').addEventListener('click', function() {
+      dismissKeyboardHint();
+    });
+
+    keyboardHintShowTimer = window.setTimeout(function() {
+      keyboardHintShowTimer = null;
+      keyboardHint.hidden = false;
+      markKeyboardHintAsSeen();
+
+      window.requestAnimationFrame(function() {
+        keyboardHint.classList.add('is-visible');
+      });
+
+      keyboardHintTimer = window.setTimeout(function() {
+        dismissKeyboardHint();
+      }, 5000);
+    }, 1000);
   }
 
   function countCodeLinesFromRoot(root) {
@@ -849,6 +970,8 @@
     if (event.key === '?') {
       event.preventDefault();
       lastGKeyTime = 0;
+      markKeyboardHintAsSeen();
+      dismissKeyboardHint();
       openKeyboardShortcutsOverlay();
       return;
     }
@@ -1070,6 +1193,7 @@
     if (event.key === 'Escape') {
       closeCodeOverlay();
       closeKeyboardShortcutsOverlay();
+      dismissKeyboardHint();
     }
 
     handleNavigationShortcut(event);
@@ -1103,4 +1227,5 @@
   installHeadingAnchors();
   installCopyButtons();
   markExternalLinks();
+  installKeyboardHint();
 })(document);

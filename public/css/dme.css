@@ -654,7 +654,7 @@ a.sidebar-nav-item:focus {
 
 .keyboard-shortcuts-list > div {
   display: grid;
-  grid-template-columns: 4.5rem 1fr;
+  grid-template-columns: 5rem 1fr;
   align-items: center;
   gap: 1rem;
   padding: .65rem 0;
@@ -668,6 +668,12 @@ a.sidebar-nav-item:focus {
 .keyboard-shortcuts-list dt,
 .keyboard-shortcuts-list dd {
   margin: 0;
+}
+
+.keyboard-shortcuts-list dt {
+  display: flex;
+  align-items: center;
+  gap: .35rem;
 }
 
 .keyboard-shortcuts-list dd {
@@ -1221,6 +1227,31 @@ a.sidebar-nav-item:focus {
   outline: none;
   border-color: #7f99b3;
   box-shadow: 0 0 0 4px rgba(127, 153, 179, .14);
+}
+
+.search-syntax {
+  margin: .65rem 0 0;
+  color: var(--color-text-subtle);
+  font-family: "PT Sans", Helvetica, Arial, sans-serif;
+  font-size: .76rem;
+  line-height: 1.65;
+}
+
+.search-syntax code,
+.search-syntax kbd {
+  display: inline-block;
+  padding: .1rem .3rem;
+  color: var(--color-text-muted);
+  background: var(--color-bg-soft);
+  border: 1px solid var(--color-border-muted);
+  border-radius: 4px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: .7rem;
+  line-height: 1.2;
+}
+
+.search-syntax kbd {
+  border-bottom-width: 2px;
 }
 
 .search-meta {

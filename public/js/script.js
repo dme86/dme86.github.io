@@ -338,8 +338,8 @@
       '<button type="button" class="keyboard-shortcuts-close" aria-label="Close keyboard shortcuts">Close</button>',
       '</div>',
       '<dl class="keyboard-shortcuts-list">',
-      '<div><dt><kbd>j</kbd></dt><dd>Scroll down</dd></div>',
-      '<div><dt><kbd>k</kbd></dt><dd>Scroll up</dd></div>',
+      '<div><dt><kbd>j</kbd><kbd>J</kbd></dt><dd>Scroll down / page down</dd></div>',
+      '<div><dt><kbd>k</kbd><kbd>K</kbd></dt><dd>Scroll up / page up</dd></div>',
       '<div><dt><kbd>gg</kbd></dt><dd>Jump to the top</dd></div>',
       '<div><dt><kbd>G</kbd></dt><dd>Jump to the bottom</dd></div>',
       '<div><dt><kbd>h</kbd></dt><dd>Go to the homepage</dd></div>',
@@ -1034,6 +1034,7 @@
   function handleNavigationShortcut(event) {
     var now = Date.now();
     var isStepKey = event.key === 'j' || event.key === 'k';
+    var isPageStepKey = event.key === 'J' || event.key === 'K';
 
     if (event.defaultPrevented ||
         (event.repeat && !isStepKey) ||
@@ -1087,6 +1088,16 @@
       lastGKeyTime = 0;
       window.scrollBy({
         top: event.key === 'j' ? navigationScrollStep : -navigationScrollStep,
+        behavior: 'auto'
+      });
+      return;
+    }
+
+    if (isPageStepKey) {
+      event.preventDefault();
+      lastGKeyTime = 0;
+      window.scrollBy({
+        top: event.key === 'J' ? window.innerHeight : -window.innerHeight,
         behavior: 'auto'
       });
       return;
@@ -1272,6 +1283,11 @@
 
   document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
+      if (searchInput && document.activeElement === searchInput) {
+        event.preventDefault();
+        searchInput.blur();
+      }
+
       closeCodeOverlay();
       closeKeyboardShortcutsOverlay();
       dismissKeyboardHint();

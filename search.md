@@ -23,8 +23,13 @@ permalink: /search/
       autocomplete="off"
       spellcheck="false"
       autofocus
+      aria-describedby="search-syntax"
       placeholder="Search for Ansible, CentOS, Tor, Terraform..."
     />
+    <p class="search-syntax" id="search-syntax">
+      Narrow results with <code>title:linux</code> (or <code>headline:linux</code>), <code>tag:devops</code>,
+      <code>content:systemd</code>, or <code>description:storage</code>. Combine filters; press <kbd>Esc</kbd> to leave search.
+    </p>
   </div>
 
   <div class="search-meta" id="search-meta"></div>

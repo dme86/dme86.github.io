@@ -408,6 +408,16 @@
     }
   }
 
+  function isDesktopKeyboardHintContext() {
+    if (typeof window.matchMedia !== 'function') {
+      return false;
+    }
+
+    return window.matchMedia(
+      '(min-width: 48em) and (any-hover: hover) and (any-pointer: fine)'
+    ).matches;
+  }
+
   function dismissKeyboardHint() {
     if (keyboardHintShowTimer) {
       window.clearTimeout(keyboardHintShowTimer);
@@ -433,7 +443,9 @@
   }
 
   function installKeyboardHint() {
-    if (hasSeenKeyboardHint() || (codeOverlay && !codeOverlay.hidden)) {
+    if (!isDesktopKeyboardHintContext() ||
+        hasSeenKeyboardHint() ||
+        (codeOverlay && !codeOverlay.hidden)) {
       return;
     }
 
@@ -455,6 +467,11 @@
 
     keyboardHintShowTimer = window.setTimeout(function() {
       keyboardHintShowTimer = null;
+
+      if (!isDesktopKeyboardHintContext()) {
+        return;
+      }
+
       keyboardHint.hidden = false;
       markKeyboardHintAsSeen();
 

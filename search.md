@@ -28,7 +28,7 @@ permalink: /search/
     />
     <p class="search-syntax" id="search-syntax">
       Narrow results with <code>title:linux</code> (or <code>headline:linux</code>), <code>tag:devops</code>,
-      <code>content:systemd</code>, or <code>description:storage</code>. Combine filters; press <kbd>Esc</kbd> to leave search.
+      <code>content:systemd</code>, or <code>description:storage</code>. Combine filters; press <kbd>Esc</kbd> to remove focus from the search field.
     </p>
   </div>
 

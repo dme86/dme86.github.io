@@ -1,0 +1,22 @@
+name: Annual Pages rebuild
+
+'on':
+  schedule:
+    - cron: '5 0 1 1 *'
+      timezone: Europe/Berlin
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+
+jobs:
+  rebuild:
+    name: Rebuild GitHub Pages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Request a Pages rebuild
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh api --method POST "repos/${GH_REPO}/pages/builds"

@@ -704,6 +704,17 @@ a.sidebar-nav-item:focus {
   overflow: hidden;
 }
 
+.is-keyboard-selected {
+  outline: 2px solid var(--color-link-hover);
+  outline-offset: .45rem;
+  border-radius: 6px;
+}
+
+#post-list > .post.is-keyboard-selected {
+  background: rgba(216, 180, 106, .035);
+  box-shadow: 0 0 0 .45rem rgba(216, 180, 106, .035);
+}
+
 .keyboard-hint {
   position: fixed;
   left: 1rem;

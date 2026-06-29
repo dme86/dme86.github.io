@@ -25,6 +25,8 @@
   var keyboardHintShowTimer = null;
   var keyboardHintTimer = null;
   var keyboardHintStorageKey = 'dme-keyboard-shortcuts-hint-seen';
+  var keyboardNavigationTarget = null;
+  var keyboardNavigationFocusElement = null;
   var codeLanguageAllowlist = [
     'yaml', 'yml', 'shell', 'sh', 'bash', 'zsh', 'python', 'py', 'json', 'jinja', 'jinja2',
     'terraform', 'hcl', 'go', 'javascript', 'js', 'typescript', 'ts', 'tsx', 'dockerfile',
@@ -340,6 +342,7 @@
       '<dl class="keyboard-shortcuts-list">',
       '<div><dt><kbd>j</kbd><kbd>J</kbd></dt><dd>Scroll down / page down</dd></div>',
       '<div><dt><kbd>k</kbd><kbd>K</kbd></dt><dd>Scroll up / page up</dd></div>',
+      '<div><dt><kbd>n</kbd><kbd>b</kbd></dt><dd>Next / previous article or heading</dd></div>',
       '<div><dt><kbd>gg</kbd></dt><dd>Jump to the top</dd></div>',
       '<div><dt><kbd>G</kbd></dt><dd>Jump to the bottom</dd></div>',
       '<div><dt><kbd>h</kbd></dt><dd>Go to the homepage</dd></div>',
@@ -1031,6 +1034,81 @@
     return target.matches('input, textarea, select') || target.isContentEditable;
   }
 
+  function keyboardNavigationTargets() {
+    var postsContainer = document.querySelector('#post-list');
+
+    if (postsContainer) {
+      return Array.from(postsContainer.children).filter(function(child) {
+        return child.classList.contains('post');
+      });
+    }
+
+    if (post) {
+      return Array.from(post.querySelectorAll('h2, h3'));
+    }
+
+    return [];
+  }
+
+  function clearKeyboardNavigation() {
+    if (keyboardNavigationTarget) {
+      keyboardNavigationTarget.classList.remove('is-keyboard-selected');
+
+      if (keyboardNavigationTarget.getAttribute('data-keyboard-tabindex') === 'added') {
+        keyboardNavigationTarget.removeAttribute('tabindex');
+        keyboardNavigationTarget.removeAttribute('data-keyboard-tabindex');
+      }
+    }
+
+    if (keyboardNavigationFocusElement &&
+        document.activeElement === keyboardNavigationFocusElement &&
+        typeof keyboardNavigationFocusElement.blur === 'function') {
+      keyboardNavigationFocusElement.blur();
+    }
+
+    keyboardNavigationTarget = null;
+    keyboardNavigationFocusElement = null;
+  }
+
+  function selectKeyboardNavigationTarget(target) {
+    clearKeyboardNavigation();
+
+    var focusElement = target.querySelector('.post-title a') || target;
+
+    if (focusElement === target && !target.hasAttribute('tabindex')) {
+      target.setAttribute('tabindex', '-1');
+      target.setAttribute('data-keyboard-tabindex', 'added');
+    }
+
+    keyboardNavigationTarget = target;
+    keyboardNavigationFocusElement = focusElement;
+    target.classList.add('is-keyboard-selected');
+
+    try {
+      focusElement.focus({ preventScroll: true });
+    } catch (error) {
+      focusElement.focus();
+    }
+
+    target.scrollIntoView({ block: 'center', behavior: 'auto' });
+  }
+
+  function moveKeyboardNavigation(direction) {
+    var targets = keyboardNavigationTargets();
+
+    if (!targets.length) {
+      return false;
+    }
+
+    var currentIndex = targets.indexOf(keyboardNavigationTarget);
+    var nextIndex = currentIndex === -1 ?
+      (direction > 0 ? 0 : targets.length - 1) :
+      (currentIndex + direction + targets.length) % targets.length;
+
+    selectKeyboardNavigationTarget(targets[nextIndex]);
+    return true;
+  }
+
   function handleNavigationShortcut(event) {
     var now = Date.now();
     var isStepKey = event.key === 'j' || event.key === 'k';
@@ -1078,6 +1156,15 @@
         window.scrollTo({ top: 0, behavior: 'auto' });
       } else {
         window.location.assign('/');
+      }
+
+      return;
+    }
+
+    if (event.key === 'n' || event.key === 'b') {
+      if (moveKeyboardNavigation(event.key === 'n' ? 1 : -1)) {
+        event.preventDefault();
+        lastGKeyTime = 0;
       }
 
       return;
@@ -1291,6 +1378,7 @@
       closeCodeOverlay();
       closeKeyboardShortcutsOverlay();
       dismissKeyboardHint();
+      clearKeyboardNavigation();
     }
 
     handleNavigationShortcut(event);

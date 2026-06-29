@@ -17,6 +17,8 @@
   var navigationScrollStep = 48;
   var codeOverlay = null;
   var codeOverlayPreviousFocus = null;
+  var codeOverlayWrapper = null;
+  var expandedCodeHashPrefix = '#expand-';
   var keyboardShortcutsOverlay = null;
   var keyboardShortcutsPreviousFocus = null;
   var keyboardHint = null;
@@ -159,7 +161,7 @@
       '<div class="code-overlay-toolbar">',
       '<span class="code-overlay-meta"></span>',
       '<div class="code-overlay-actions">',
-      '<a class="code-overlay-link" href="#" aria-label="Link to this code block">#</a>',
+      '<a class="code-overlay-link" href="#" aria-label="Link to expanded code block">#</a>',
       '<button type="button" class="code-overlay-copy">Copy</button>',
       '<button type="button" class="code-overlay-close" aria-label="Close expanded code block">Close</button>',
       '</div>',
@@ -177,6 +179,50 @@
     });
 
     return codeOverlay;
+  }
+
+  function expandedCodeHash(wrapper) {
+    return expandedCodeHashPrefix + encodeURIComponent(wrapper.id);
+  }
+
+  function expandedCodeWrapperFromHash() {
+    if (window.location.hash.indexOf(expandedCodeHashPrefix) !== 0) {
+      return null;
+    }
+
+    var wrapperId;
+
+    try {
+      wrapperId = decodeURIComponent(window.location.hash.slice(expandedCodeHashPrefix.length));
+    } catch (error) {
+      return null;
+    }
+
+    var wrapper = document.getElementById(wrapperId);
+
+    if (!wrapper || !wrapper.classList.contains('code-block')) {
+      return null;
+    }
+
+    return wrapper;
+  }
+
+  function openCodeOverlayFromHash() {
+    var wrapper = expandedCodeWrapperFromHash();
+
+    if (!wrapper) {
+      if (codeOverlay && !codeOverlay.hidden && codeOverlayWrapper) {
+        closeCodeOverlay(true);
+      }
+
+      return;
+    }
+
+    wrapper.scrollIntoView({ block: 'center' });
+
+    if (!codeOverlay || codeOverlay.hidden || codeOverlayWrapper !== wrapper) {
+      openCodeOverlay(wrapper);
+    }
   }
 
   function openCodeOverlay(wrapper) {
@@ -219,7 +265,7 @@
     content.appendChild(codeElement.cloneNode(true));
     overlay.setAttribute('data-code-size', overlaySize);
     meta.textContent = language + ' · ' + lineCount + (lineCount === 1 ? ' line' : ' lines');
-    link.href = '#' + wrapper.id;
+    link.href = expandedCodeHash(wrapper);
 
     copyButton.textContent = 'Copy';
     copyButton.onclick = function() {
@@ -236,16 +282,23 @@
       });
     };
 
+    dismissKeyboardHint();
     codeOverlayPreviousFocus = document.activeElement;
+    codeOverlayWrapper = wrapper;
     overlay.hidden = false;
     document.body.classList.add('has-code-overlay');
     closeButton.focus();
   }
 
-  function closeCodeOverlay() {
+  function closeCodeOverlay(preserveHash) {
     if (!codeOverlay || codeOverlay.hidden) {
       return;
     }
+
+    var wrapper = codeOverlayWrapper;
+    var normalizeHash = !preserveHash &&
+      wrapper &&
+      window.location.hash === expandedCodeHash(wrapper);
 
     codeOverlay.hidden = true;
     document.body.classList.remove('has-code-overlay');
@@ -257,6 +310,16 @@
     }
 
     codeOverlayPreviousFocus = null;
+    codeOverlayWrapper = null;
+
+    if (normalizeHash) {
+      window.history.replaceState(
+        null,
+        '',
+        window.location.pathname + window.location.search + '#' + wrapper.id
+      );
+      wrapper.scrollIntoView({ block: 'center' });
+    }
   }
 
   function ensureKeyboardShortcutsOverlay() {
@@ -370,7 +433,7 @@
   }
 
   function installKeyboardHint() {
-    if (hasSeenKeyboardHint()) {
+    if (hasSeenKeyboardHint() || (codeOverlay && !codeOverlay.hidden)) {
       return;
     }
 
@@ -1133,6 +1196,7 @@
           updatePostAges();
           installHeadingAnchors();
           installCopyButtons();
+          openCodeOverlayFromHash();
           markExternalLinks();
 
           if (followingPageLink) {
@@ -1216,6 +1280,8 @@
     updateReadingProgress();
   }
 
+  window.addEventListener('hashchange', openCodeOverlayFromHash);
+
   installSearch();
   focusSearchInput();
   installInfiniteScroll();
@@ -1226,6 +1292,7 @@
   }
   installHeadingAnchors();
   installCopyButtons();
+  openCodeOverlayFromHash();
   markExternalLinks();
   installKeyboardHint();
 })(document);

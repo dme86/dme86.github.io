@@ -11,6 +11,10 @@
   var searchResults = document.querySelector('#search-results');
   var searchMeta = document.querySelector('#search-meta');
   var searchIndexUrl = '/search.json';
+  var searchPageUrl = '/search/';
+  var lastGKeyTime = 0;
+  var keySequenceTimeout = 600;
+  var navigationScrollStep = 48;
   var codeOverlay = null;
   var codeLanguageAllowlist = [
     'yaml', 'yml', 'shell', 'sh', 'bash', 'zsh', 'python', 'py', 'json', 'jinja', 'jinja2',
@@ -746,6 +750,74 @@
     }, 0);
   }
 
+  function isTextInput(target) {
+    if (!target || target.nodeType !== 1) {
+      return false;
+    }
+
+    return target.matches('input, textarea, select') || target.isContentEditable;
+  }
+
+  function handleNavigationShortcut(event) {
+    var now = Date.now();
+    var isStepKey = event.key === 'j' || event.key === 'k';
+
+    if (event.defaultPrevented ||
+        (event.repeat && !isStepKey) ||
+        event.ctrlKey ||
+        event.altKey ||
+        event.metaKey ||
+        isTextInput(event.target) ||
+        (codeOverlay && !codeOverlay.hidden)) {
+      lastGKeyTime = 0;
+      return;
+    }
+
+    if (event.key === '/') {
+      event.preventDefault();
+      lastGKeyTime = 0;
+
+      if (searchInput) {
+        focusSearchInput();
+      } else {
+        window.location.assign(searchPageUrl);
+      }
+
+      return;
+    }
+
+    if (isStepKey) {
+      event.preventDefault();
+      lastGKeyTime = 0;
+      window.scrollBy({
+        top: event.key === 'j' ? navigationScrollStep : -navigationScrollStep,
+        behavior: 'auto'
+      });
+      return;
+    }
+
+    if (event.key === 'G') {
+      event.preventDefault();
+      lastGKeyTime = 0;
+      window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'auto' });
+      return;
+    }
+
+    if (event.key === 'g') {
+      if (now - lastGKeyTime <= keySequenceTimeout) {
+        event.preventDefault();
+        lastGKeyTime = 0;
+        window.scrollTo({ top: 0, behavior: 'auto' });
+      } else {
+        lastGKeyTime = now;
+      }
+
+      return;
+    }
+
+    lastGKeyTime = 0;
+  }
+
   function toggleScrollTopButton() {
     if (!scrollTopButton) return;
 
@@ -905,6 +977,8 @@
     if (event.key === 'Escape') {
       closeCodeOverlay();
     }
+
+    handleNavigationShortcut(event);
   });
 
   if (masthead) {

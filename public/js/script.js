@@ -16,6 +16,8 @@
   var keySequenceTimeout = 600;
   var navigationScrollStep = 48;
   var codeOverlay = null;
+  var keyboardShortcutsOverlay = null;
+  var keyboardShortcutsPreviousFocus = null;
   var codeLanguageAllowlist = [
     'yaml', 'yml', 'shell', 'sh', 'bash', 'zsh', 'python', 'py', 'json', 'jinja', 'jinja2',
     'terraform', 'hcl', 'go', 'javascript', 'js', 'typescript', 'ts', 'tsx', 'dockerfile',
@@ -210,6 +212,76 @@
 
     codeOverlay.hidden = true;
     document.body.classList.remove('has-code-overlay');
+  }
+
+  function ensureKeyboardShortcutsOverlay() {
+    if (keyboardShortcutsOverlay) {
+      return keyboardShortcutsOverlay;
+    }
+
+    keyboardShortcutsOverlay = document.createElement('div');
+    keyboardShortcutsOverlay.className = 'keyboard-shortcuts-overlay';
+    keyboardShortcutsOverlay.hidden = true;
+    keyboardShortcutsOverlay.innerHTML = [
+      '<div class="keyboard-shortcuts-backdrop" data-shortcuts-close="true"></div>',
+      '<div class="keyboard-shortcuts-panel" role="dialog" aria-modal="true" aria-labelledby="keyboard-shortcuts-title">',
+      '<div class="keyboard-shortcuts-header">',
+      '<h2 id="keyboard-shortcuts-title">Keyboard shortcuts</h2>',
+      '<button type="button" class="keyboard-shortcuts-close" aria-label="Close keyboard shortcuts">Close</button>',
+      '</div>',
+      '<dl class="keyboard-shortcuts-list">',
+      '<div><dt><kbd>j</kbd></dt><dd>Scroll down</dd></div>',
+      '<div><dt><kbd>k</kbd></dt><dd>Scroll up</dd></div>',
+      '<div><dt><kbd>gg</kbd></dt><dd>Jump to the top</dd></div>',
+      '<div><dt><kbd>G</kbd></dt><dd>Jump to the bottom</dd></div>',
+      '<div><dt><kbd>h</kbd></dt><dd>Go to the homepage</dd></div>',
+      '<div><dt><kbd>/</kbd></dt><dd>Open search</dd></div>',
+      '<div><dt><kbd>?</kbd></dt><dd>Show these shortcuts</dd></div>',
+      '<div><dt><kbd>Esc</kbd></dt><dd>Close this panel</dd></div>',
+      '</dl>',
+      '</div>'
+    ].join('');
+
+    document.body.appendChild(keyboardShortcutsOverlay);
+
+    keyboardShortcutsOverlay.addEventListener('click', function(event) {
+      if (event.target.getAttribute('data-shortcuts-close') === 'true' ||
+          event.target.classList.contains('keyboard-shortcuts-close')) {
+        closeKeyboardShortcutsOverlay();
+      }
+    });
+
+    return keyboardShortcutsOverlay;
+  }
+
+  function openKeyboardShortcutsOverlay() {
+    var overlay = ensureKeyboardShortcutsOverlay();
+    var closeButton = overlay.querySelector('.keyboard-shortcuts-close');
+
+    keyboardShortcutsPreviousFocus = document.activeElement;
+    overlay.hidden = false;
+    document.body.classList.add('has-keyboard-shortcuts-overlay');
+
+    if (closeButton) {
+      closeButton.focus();
+    }
+  }
+
+  function closeKeyboardShortcutsOverlay() {
+    if (!keyboardShortcutsOverlay || keyboardShortcutsOverlay.hidden) {
+      return;
+    }
+
+    keyboardShortcutsOverlay.hidden = true;
+    document.body.classList.remove('has-keyboard-shortcuts-overlay');
+
+    if (keyboardShortcutsPreviousFocus &&
+        document.contains(keyboardShortcutsPreviousFocus) &&
+        typeof keyboardShortcutsPreviousFocus.focus === 'function') {
+      keyboardShortcutsPreviousFocus.focus();
+    }
+
+    keyboardShortcutsPreviousFocus = null;
   }
 
   function countCodeLinesFromRoot(root) {
@@ -768,8 +840,16 @@
         event.altKey ||
         event.metaKey ||
         isTextInput(event.target) ||
-        (codeOverlay && !codeOverlay.hidden)) {
+        (codeOverlay && !codeOverlay.hidden) ||
+        (keyboardShortcutsOverlay && !keyboardShortcutsOverlay.hidden)) {
       lastGKeyTime = 0;
+      return;
+    }
+
+    if (event.key === '?') {
+      event.preventDefault();
+      lastGKeyTime = 0;
+      openKeyboardShortcutsOverlay();
       return;
     }
 
@@ -781,6 +861,19 @@
         focusSearchInput();
       } else {
         window.location.assign(searchPageUrl);
+      }
+
+      return;
+    }
+
+    if (event.key === 'h') {
+      event.preventDefault();
+      lastGKeyTime = 0;
+
+      if (window.location.pathname === '/') {
+        window.scrollTo({ top: 0, behavior: 'auto' });
+      } else {
+        window.location.assign('/');
       }
 
       return;
@@ -976,6 +1069,7 @@
   document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
       closeCodeOverlay();
+      closeKeyboardShortcutsOverlay();
     }
 
     handleNavigationShortcut(event);

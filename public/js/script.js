@@ -507,6 +507,9 @@
 
         if (event.shiftKey && selectionAnchor !== null) {
           codeOverlaySetLineSelection(selectionAnchor, lineNumber, true);
+        } else if (selectedLineStart === lineNumber && selectedLineEnd === lineNumber) {
+          selectionAnchor = null;
+          codeOverlaySetLineSelection(null, null, true);
         } else {
           selectionAnchor = lineNumber;
           codeOverlaySetLineSelection(lineNumber, lineNumber, true);

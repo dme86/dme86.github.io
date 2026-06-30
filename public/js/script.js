@@ -389,6 +389,22 @@
     var linesContainer = document.createElement('div');
     var lineRows = [];
     var selectionAnchor = null;
+    var selectedLineStart = null;
+    var selectedLineEnd = null;
+
+    function resetCopyButtonLabel() {
+      if (selectedLineStart !== null) {
+        var selectedLineCount = selectedLineEnd - selectedLineStart + 1;
+        copyButton.textContent = 'Copy ' + selectedLineCount + (selectedLineCount === 1 ? ' line' : ' lines');
+        copyButton.setAttribute(
+          'aria-label',
+          'Copy selected code lines ' + selectedLineStart + ' through ' + selectedLineEnd
+        );
+      } else {
+        copyButton.textContent = 'Copy';
+        copyButton.setAttribute('aria-label', 'Copy code');
+      }
+    }
 
     if (lineCount > 36 || longestLine > 100) {
       overlaySize = 'large';
@@ -447,6 +463,9 @@
         end = swap;
       }
 
+      selectedLineStart = hasSelection ? start : null;
+      selectedLineEnd = hasSelection ? end : null;
+
       lineRows.forEach(function(row, index) {
         var lineNumber = index + 1;
         var isSelected = hasSelection && lineNumber >= start && lineNumber <= end;
@@ -475,6 +494,8 @@
           window.location.pathname + window.location.search + selectionHash
         );
       }
+
+      resetCopyButtonLabel();
     };
 
     lineRows.forEach(function(row, index) {
@@ -500,17 +521,22 @@
       codeOverlaySetLineSelection(null, null, false);
     }
 
-    copyButton.textContent = 'Copy';
     copyButton.onclick = function() {
-      copyText(wrapper.querySelector('pre').innerText).then(function() {
+      var textToCopy = selectedLineStart === null ?
+        wrapper.querySelector('pre').innerText :
+        codeLines.slice(selectedLineStart - 1, selectedLineEnd).join('\n');
+
+      copyText(textToCopy).then(function() {
         copyButton.textContent = 'Copied';
+        copyButton.setAttribute('aria-label', 'Code copied');
         window.setTimeout(function() {
-          copyButton.textContent = 'Copy';
+          resetCopyButtonLabel();
         }, 1400);
       }).catch(function() {
         copyButton.textContent = 'Error';
+        copyButton.setAttribute('aria-label', 'Could not copy code');
         window.setTimeout(function() {
-          copyButton.textContent = 'Copy';
+          resetCopyButtonLabel();
         }, 1400);
       });
     };

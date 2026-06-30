@@ -18,6 +18,7 @@
   var codeOverlay = null;
   var codeOverlayPreviousFocus = null;
   var codeOverlayWrapper = null;
+  var codeOverlaySetLineSelection = null;
   var expandedCodeHashPrefix = '#expand-';
   var keyboardShortcutsOverlay = null;
   var keyboardShortcutsPreviousFocus = null;
@@ -164,7 +165,7 @@
       '<div class="code-overlay-toolbar">',
       '<span class="code-overlay-meta"></span>',
       '<div class="code-overlay-actions">',
-      '<a class="code-overlay-link" href="#" aria-label="Link to expanded code block">#</a>',
+      '<a class="code-overlay-link" href="#" aria-label="Copy link to expanded code block">Share</a>',
       '<button type="button" class="code-overlay-copy">Copy</button>',
       '<button type="button" class="code-overlay-close" aria-label="Close expanded code block">Close</button>',
       '</div>',
@@ -181,39 +182,162 @@
       }
     });
 
+    var shareLink = codeOverlay.querySelector('.code-overlay-link');
+
+    shareLink.addEventListener('click', function(event) {
+      event.preventDefault();
+
+      copyText(new URL(shareLink.href, window.location.href).toString()).then(function() {
+        shareLink.textContent = 'Copied link';
+        window.setTimeout(function() {
+          shareLink.textContent = 'Share';
+        }, 1400);
+      }).catch(function() {
+        shareLink.textContent = 'Error';
+        window.setTimeout(function() {
+          shareLink.textContent = 'Share';
+        }, 1400);
+      });
+    });
+
     return codeOverlay;
   }
 
-  function expandedCodeHash(wrapper) {
-    return expandedCodeHashPrefix + encodeURIComponent(wrapper.id);
+  function expandedCodeHash(wrapper, lineStart, lineEnd) {
+    var hash = expandedCodeHashPrefix + encodeURIComponent(wrapper.id);
+
+    if (lineStart) {
+      hash += '-L' + lineStart;
+
+      if (lineEnd && lineEnd !== lineStart) {
+        hash += '-L' + lineEnd;
+      }
+    }
+
+    return hash;
   }
 
-  function expandedCodeWrapperFromHash() {
+  function codeLanguageLabel(language) {
+    var labels = {
+      yaml: 'YAML',
+      yml: 'YAML',
+      shell: 'Shell',
+      sh: 'Shell',
+      bash: 'Bash',
+      zsh: 'Zsh',
+      python: 'Python',
+      py: 'Python',
+      json: 'JSON',
+      jinja: 'Jinja',
+      jinja2: 'Jinja',
+      terraform: 'Terraform',
+      hcl: 'HCL',
+      go: 'Go',
+      javascript: 'JavaScript',
+      js: 'JavaScript',
+      typescript: 'TypeScript',
+      ts: 'TypeScript',
+      tsx: 'TSX',
+      dockerfile: 'Dockerfile',
+      html: 'HTML',
+      css: 'CSS',
+      sql: 'SQL',
+      xml: 'XML',
+      toml: 'TOML',
+      ini: 'INI',
+      ruby: 'Ruby',
+      java: 'Java',
+      c: 'C',
+      cpp: 'C++',
+      csharp: 'C#',
+      rust: 'Rust',
+      kotlin: 'Kotlin',
+      markdown: 'Markdown',
+      md: 'Markdown'
+    };
+
+    if (!language || language === 'plaintext' || language === 'text') {
+      return null;
+    }
+
+    return labels[language] || language.charAt(0).toUpperCase() + language.slice(1);
+  }
+
+  function expandedCodeStateFromHash() {
     if (window.location.hash.indexOf(expandedCodeHashPrefix) !== 0) {
       return null;
     }
 
-    var wrapperId;
+    var hashValue;
 
     try {
-      wrapperId = decodeURIComponent(window.location.hash.slice(expandedCodeHashPrefix.length));
+      hashValue = decodeURIComponent(window.location.hash.slice(expandedCodeHashPrefix.length));
     } catch (error) {
       return null;
     }
 
-    var wrapper = document.getElementById(wrapperId);
+    var wrapper = document.getElementById(hashValue);
+
+    if (wrapper && wrapper.classList.contains('code-block')) {
+      return {
+        wrapper: wrapper,
+        lineStart: null,
+        lineEnd: null
+      };
+    }
+
+    var lineMatch = hashValue.match(/-L([1-9]\d*)(?:-L([1-9]\d*))?$/);
+
+    if (!lineMatch) {
+      return null;
+    }
+
+    var wrapperId = hashValue.slice(0, lineMatch.index);
+    wrapper = document.getElementById(wrapperId);
 
     if (!wrapper || !wrapper.classList.contains('code-block')) {
       return null;
     }
 
-    return wrapper;
+    return {
+      wrapper: wrapper,
+      lineStart: parseInt(lineMatch[1], 10),
+      lineEnd: parseInt(lineMatch[2] || lineMatch[1], 10)
+    };
+  }
+
+  function splitHighlightedNodeIntoLines(node) {
+    if (node.nodeType === 3) {
+      return node.nodeValue.split('\n').map(function(text) {
+        return document.createTextNode(text);
+      });
+    }
+
+    if (node.nodeType !== 1) {
+      return [node.cloneNode(true)];
+    }
+
+    var lines = [node.cloneNode(false)];
+
+    Array.from(node.childNodes).forEach(function(child) {
+      var childLines = splitHighlightedNodeIntoLines(child);
+
+      lines[lines.length - 1].appendChild(childLines[0]);
+
+      childLines.slice(1).forEach(function(childLine) {
+        var continuation = node.cloneNode(false);
+        continuation.appendChild(childLine);
+        lines.push(continuation);
+      });
+    });
+
+    return lines;
   }
 
   function openCodeOverlayFromHash() {
-    var wrapper = expandedCodeWrapperFromHash();
+    var state = expandedCodeStateFromHash();
 
-    if (!wrapper) {
+    if (!state) {
       if (codeOverlay && !codeOverlay.hidden && codeOverlayWrapper) {
         closeCodeOverlay(true);
       }
@@ -221,14 +345,17 @@
       return;
     }
 
+    var wrapper = state.wrapper;
     wrapper.scrollIntoView({ block: 'center' });
 
     if (!codeOverlay || codeOverlay.hidden || codeOverlayWrapper !== wrapper) {
-      openCodeOverlay(wrapper);
+      openCodeOverlay(wrapper, state);
+    } else if (codeOverlaySetLineSelection) {
+      codeOverlaySetLineSelection(state.lineStart, state.lineEnd, false);
     }
   }
 
-  function openCodeOverlay(wrapper) {
+  function openCodeOverlay(wrapper, initialState) {
     var overlay = ensureCodeOverlay();
     var content = overlay.querySelector('.code-overlay-content');
     var meta = overlay.querySelector('.code-overlay-meta');
@@ -247,16 +374,21 @@
     var longestLine = codeLines.reduce(function(longest, line) {
       return Math.max(longest, line.length);
     }, 0);
-    var languageContainer = wrapper.matches('[class*="language-"]') ?
-      wrapper :
+    var languageContainer = wrapper.closest('[class*="language-"]') ||
       wrapper.querySelector('[class*="language-"]');
     var languageClass = languageContainer ?
       Array.from(languageContainer.classList).find(function(className) {
         return className.indexOf('language-') === 0;
       }) :
       null;
-    var language = languageClass ? languageClass.replace('language-', '') : 'code';
+    var language = languageClass ? languageClass.replace('language-', '') : null;
+    var languageLabel = codeLanguageLabel(language);
     var overlaySize = 'compact';
+    var sourceCode = codeElement.querySelector('code') || codeElement;
+    var highlightedLines = splitHighlightedNodeIntoLines(sourceCode).slice(0, lineCount);
+    var linesContainer = document.createElement('div');
+    var lineRows = [];
+    var selectionAnchor = null;
 
     if (lineCount > 36 || longestLine > 100) {
       overlaySize = 'large';
@@ -265,10 +397,108 @@
     }
 
     content.innerHTML = '';
-    content.appendChild(codeElement.cloneNode(true));
+    linesContainer.className = 'code-overlay-lines highlight';
+
+    codeLines.forEach(function(codeLine, index) {
+      var lineNumber = index + 1;
+      var row = document.createElement('div');
+      var numberLink = document.createElement('a');
+      var lineContent = document.createElement('span');
+
+      row.className = 'code-overlay-line';
+      row.setAttribute('data-line-number', lineNumber);
+
+      numberLink.className = 'code-overlay-line-number';
+      numberLink.href = expandedCodeHash(wrapper, lineNumber, lineNumber);
+      numberLink.textContent = lineNumber;
+      numberLink.setAttribute('aria-label', 'Select line ' + lineNumber);
+      numberLink.title = 'Select line ' + lineNumber + '; Shift-click to select a range';
+
+      lineContent.className = 'code-overlay-line-content';
+
+      if (highlightedLines[index]) {
+        lineContent.appendChild(highlightedLines[index]);
+      } else {
+        lineContent.textContent = codeLine;
+      }
+
+      row.appendChild(numberLink);
+      row.appendChild(lineContent);
+      linesContainer.appendChild(row);
+      lineRows.push(row);
+    });
+
+    content.appendChild(linesContainer);
     overlay.setAttribute('data-code-size', overlaySize);
-    meta.textContent = language + ' · ' + lineCount + (lineCount === 1 ? ' line' : ' lines');
+    meta.textContent = lineCount +
+      (lineCount === 1 ? ' line' : ' lines') +
+      (languageLabel ? ' of ' + languageLabel + ' code' : ' of code');
+    link.textContent = 'Share';
     link.href = expandedCodeHash(wrapper);
+
+    codeOverlaySetLineSelection = function(lineStart, lineEnd, updateHistory) {
+      var hasSelection = lineStart !== null && lineStart !== undefined;
+      var start = hasSelection ? Math.max(1, Math.min(lineStart, lineCount)) : null;
+      var end = hasSelection ? Math.max(1, Math.min(lineEnd || lineStart, lineCount)) : null;
+
+      if (hasSelection && start > end) {
+        var swap = start;
+        start = end;
+        end = swap;
+      }
+
+      lineRows.forEach(function(row, index) {
+        var lineNumber = index + 1;
+        var isSelected = hasSelection && lineNumber >= start && lineNumber <= end;
+        var numberLink = row.querySelector('.code-overlay-line-number');
+
+        row.classList.toggle('is-selected', isSelected);
+
+        if (isSelected) {
+          numberLink.setAttribute('aria-current', 'true');
+        } else {
+          numberLink.removeAttribute('aria-current');
+        }
+      });
+
+      var selectionHash = expandedCodeHash(wrapper, start, end);
+      link.href = selectionHash;
+      link.setAttribute(
+        'aria-label',
+        hasSelection ? 'Copy link to selected code lines ' + start + ' through ' + end : 'Copy link to expanded code block'
+      );
+
+      if (updateHistory) {
+        window.history.replaceState(
+          null,
+          '',
+          window.location.pathname + window.location.search + selectionHash
+        );
+      }
+    };
+
+    lineRows.forEach(function(row, index) {
+      var lineNumber = index + 1;
+      var numberLink = row.querySelector('.code-overlay-line-number');
+
+      numberLink.addEventListener('click', function(event) {
+        event.preventDefault();
+
+        if (event.shiftKey && selectionAnchor !== null) {
+          codeOverlaySetLineSelection(selectionAnchor, lineNumber, true);
+        } else {
+          selectionAnchor = lineNumber;
+          codeOverlaySetLineSelection(lineNumber, lineNumber, true);
+        }
+      });
+    });
+
+    if (initialState && initialState.lineStart) {
+      selectionAnchor = initialState.lineStart;
+      codeOverlaySetLineSelection(initialState.lineStart, initialState.lineEnd, false);
+    } else {
+      codeOverlaySetLineSelection(null, null, false);
+    }
 
     copyButton.textContent = 'Copy';
     copyButton.onclick = function() {
@@ -290,6 +520,12 @@
     codeOverlayWrapper = wrapper;
     overlay.hidden = false;
     document.body.classList.add('has-code-overlay');
+
+    if (initialState && initialState.lineStart && lineRows.length) {
+      var selectedRow = lineRows[Math.min(initialState.lineStart, lineRows.length) - 1];
+      content.scrollTop = Math.max(0, selectedRow.offsetTop - (content.clientHeight / 2));
+    }
+
     closeButton.focus();
   }
 
@@ -299,9 +535,11 @@
     }
 
     var wrapper = codeOverlayWrapper;
+    var expandedState = expandedCodeStateFromHash();
     var normalizeHash = !preserveHash &&
       wrapper &&
-      window.location.hash === expandedCodeHash(wrapper);
+      expandedState &&
+      expandedState.wrapper === wrapper;
 
     codeOverlay.hidden = true;
     document.body.classList.remove('has-code-overlay');
@@ -314,6 +552,7 @@
 
     codeOverlayPreviousFocus = null;
     codeOverlayWrapper = null;
+    codeOverlaySetLineSelection = null;
 
     if (normalizeHash) {
       window.history.replaceState(

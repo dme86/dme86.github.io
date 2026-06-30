@@ -563,16 +563,71 @@ a.sidebar-nav-item:focus {
   flex: 0 1 auto;
   overflow: auto;
   max-height: calc(100vh - 6rem);
-  padding: 1rem;
   background: var(--color-bg-muted);
 }
 
-.code-overlay-content pre {
-  margin: 0;
-  min-height: 0;
+.code-overlay-lines {
+  width: max-content;
+  min-width: 100%;
+  padding: 1rem 0;
+  font-family: Menlo, Monaco, "Courier New", monospace;
+  font-size: .8rem;
+  line-height: 1.4;
+}
+
+.code-overlay-line {
+  display: flex;
+  width: 100%;
+  min-width: max-content;
+}
+
+.code-overlay-line.is-selected {
+  background: rgba(67, 142, 185, .16);
+  box-shadow: inset 3px 0 0 var(--color-link-hover);
+}
+
+.code-overlay-line-number {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  flex: 0 0 4rem;
+  padding: 0 1rem 0 .75rem;
+  color: var(--color-text-muted);
+  background: var(--color-bg-muted);
+  text-align: right;
+  text-decoration: none;
+  -webkit-user-select: none;
+     -moz-user-select: none;
+          user-select: none;
+}
+
+.code-overlay-line.is-selected .code-overlay-line-number {
+  color: var(--color-link-hover);
+  background: color-mix(in srgb, var(--color-bg-muted) 84%, var(--color-link-hover));
+}
+
+.code-overlay-line-number:hover,
+.code-overlay-line-number:focus {
+  color: var(--color-link-hover);
+  text-decoration: none;
+}
+
+.code-overlay-line-content {
+  display: block;
+  flex: 0 0 auto;
+  min-width: calc(100% - 4rem);
+  padding-right: 1rem;
   white-space: pre;
   word-break: normal;
   word-wrap: normal;
+}
+
+.code-overlay-line-content code {
+  padding: 0;
+  color: inherit;
+  background: transparent;
+  border-radius: 0;
+  font-size: inherit;
 }
 
 .has-code-overlay {

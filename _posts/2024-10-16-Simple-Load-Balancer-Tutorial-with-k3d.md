@@ -4,15 +4,19 @@ layout: post
 tags: [Tutorials]
 ---
 
-Local Kubernetes environments are useful when an application needs more than a single container. They provide a realistic place to test Deployments, Services, service discovery, health checks, and failure recovery without paying for a remote cluster.
+Local Kubernetes clusters are useful when an application needs more than a single container. They provide a realistic environment for testing Deployments, Services, routing, health checks, and failure recovery without requiring a remote cluster.
 
-[k3d](https://k3d.io/) runs K3s nodes as containers and creates a lightweight Kubernetes cluster on a local machine. In this tutorial, we will explicitly disable the ingress controller bundled with K3s and use [Envoy Proxy](https://www.envoyproxy.io/) as the only application-facing load balancer. Envoy will discover three backend pods through Kubernetes DNS and distribute requests across them using round-robin load balancing.
+[k3d](https://k3d.io/) runs K3s nodes as containers. In this tutorial, we will disable the ingress controller bundled with K3s and use [Envoy Gateway](https://gateway.envoyproxy.io/) to manage Envoy as the application-facing data plane. Instead of maintaining a large static `envoy.yaml`, we will describe the desired routing with the Kubernetes Gateway API.
 
 <!-- more -->
 
-## What We Are Building
+## Why Envoy Gateway?
 
-The request path is deliberately small:
+Envoy Proxy is highly configurable, but its native configuration format reflects that power. Even a small listener, route, cluster, health check, and access-log setup can require a substantial amount of YAML. That is appropriate when we need low-level control, but it is unnecessary boilerplate for a Kubernetes routing example.
+
+Envoy Gateway provides a Kubernetes-native control plane for Envoy. We declare a `GatewayClass`, a `Gateway`, and an `HTTPRoute`; Envoy Gateway validates these resources and translates them into the detailed configuration consumed by Envoy. The generated Envoy configuration still exists, but it is owned and continuously reconciled by the controller rather than copied into a ConfigMap by hand.
+
+The request path in this tutorial is:
 
 ```text
 localhost:8080
@@ -21,24 +25,27 @@ localhost:8080
 k3d port mapping
     │
     ▼
-Kubernetes NodePort Service
+K3s ServiceLB
     │
     ▼
-Envoy Proxy
+Envoy managed by Envoy Gateway
     │
     ▼
-Headless Kubernetes Service
+Kubernetes Service
     │
     ├── backend pod
     ├── backend pod
     └── backend pod
 ```
 
-The NodePort Service makes Envoy reachable from the host. It does not distribute traffic to the application pods. Envoy performs that task.
+There are several components involved, but their responsibilities are distinct:
 
-The backend uses a headless Service, which returns pod IP addresses through cluster DNS instead of presenting one virtual Service IP. Envoy's strict DNS discovery treats every returned address as an upstream host and can therefore balance directly across the pods.
+- k3d exposes port 80 from the local cluster as port 8080 on the host.
+- K3s ServiceLB makes Envoy Gateway's `LoadBalancer` Service reachable on the cluster nodes.
+- Envoy terminates the HTTP connection, evaluates the route, and forwards the request.
+- The Kubernetes Service and its EndpointSlices represent the healthy backend pods.
 
-This distinction matters. If Envoy were configured with a normal ClusterIP Service as its only upstream address, Kubernetes would perform the final backend selection. Traffic would still work, but the tutorial would not demonstrate Envoy's own load-balancing behavior.
+This is more representative of a modern Kubernetes setup than embedding a complete static Envoy configuration in an application manifest.
 
 ## Prerequisites
 
@@ -47,61 +54,84 @@ The tutorial requires:
 - Docker
 - [k3d](https://k3d.io/stable/#installation)
 - [kubectl](https://kubernetes.io/docs/tasks/tools/)
+- [Helm](https://helm.sh/docs/intro/install/)
 - `curl`
 
-Confirm that the commands are available:
+Confirm that the tools are available:
 
 ```shell
 docker version
 k3d version
 kubectl version --client
+helm version
 ```
+
+The commands below pin Envoy Gateway to `v1.8.2` so that the example remains reproducible. Before using a different version, check the [Envoy Gateway compatibility matrix](https://gateway.envoyproxy.io/news/releases/matrix/) for the supported Kubernetes, Gateway API, and Envoy versions.
 
 ## 1. Create a Cluster Without Traefik
 
-Create a cluster named `envoy-load-balancer` with one K3s server and three agents:
+Create a cluster named `envoy-gateway-demo` with one K3s server and three agents:
 
 ```shell
-k3d cluster create envoy-load-balancer \
+k3d cluster create envoy-gateway-demo \
   --servers 1 \
   --agents 3 \
   --k3s-arg="--disable=traefik@server:0" \
-  --port "8080:30080@agent:0" \
+  --port "8080:80@loadbalancer" \
   --wait
 ```
 
-The `--disable=traefik` argument prevents K3s from installing its bundled Traefik ingress controller. The node filter `@server:0` applies that K3s argument to the initializing server.
+The `--disable=traefik` argument prevents K3s from installing its bundled Traefik ingress controller. We do not need two ingress implementations competing for the same purpose, and leaving port 80 free allows K3s ServiceLB to expose Envoy cleanly.
 
-The port expression maps port `8080` on the local machine to port `30080` on the first k3d agent. Later, a NodePort Service will listen on that port and forward traffic to Envoy.
+The port mapping publishes port 80 of k3d's load-balancer container as `localhost:8080`. This is the normal k3d entry point for a Service exposed inside the cluster.
 
-k3d updates the default kubeconfig and selects the new context. Verify the cluster before deploying anything:
+k3d updates the kubeconfig and selects the new context. Verify the cluster:
 
 ```shell
 kubectl cluster-info
 kubectl get nodes
-```
-
-The node list should contain one server and three agents. All nodes should eventually report `Ready`.
-
-It is also worth verifying the assumption that Traefik is absent:
-
-```shell
 kubectl get deployment --namespace kube-system
 ```
 
-The output should not contain a Traefik Deployment.
+The node list should contain one server and three agents, all reporting `Ready`. The deployment list should not contain Traefik.
 
 If a cluster with the same name already exists, delete that cluster specifically before recreating it:
 
 ```shell
-k3d cluster delete envoy-load-balancer
+k3d cluster delete envoy-gateway-demo
 ```
 
 Avoid deleting every local cluster as part of a tutorial setup. Other clusters may contain unrelated work.
 
-## 2. Define the Backends and Envoy
+## 2. Install Envoy Gateway
 
-Create a file named `envoy-load-balancer.yaml` with the following resources:
+Install Envoy Gateway from its official OCI Helm chart:
+
+```shell
+helm install eg \
+  oci://docker.io/envoyproxy/gateway-helm \
+  --version v1.8.2 \
+  --namespace envoy-gateway-system \
+  --create-namespace
+```
+
+Wait until the controller is available:
+
+```shell
+kubectl wait \
+  --namespace envoy-gateway-system \
+  --for=condition=Available \
+  deployment/envoy-gateway \
+  --timeout=5m
+```
+
+The chart installs the Envoy Gateway controller together with the required Envoy Gateway and Gateway API custom resource definitions. On a shared or production cluster, CRD ownership and upgrades should be handled deliberately rather than treated as an incidental part of an application deployment.
+
+At this point, only the control plane is running. Envoy Gateway creates an Envoy data plane after we define a `Gateway`.
+
+## 3. Define the Application and Route
+
+Create a file named `envoy-gateway-demo.yaml`:
 
 ```yaml
 apiVersion: v1
@@ -160,7 +190,7 @@ metadata:
   name: backend
   namespace: envoy-demo
 spec:
-  clusterIP: None
+  type: ClusterIP
   selector:
     app: backend
   ports:
@@ -168,219 +198,106 @@ spec:
       port: 8080
       targetPort: http
 ---
-apiVersion: v1
-kind: ConfigMap
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
 metadata:
-  name: envoy-config
-  namespace: envoy-demo
-data:
-  envoy.yaml: |
-    static_resources:
-      listeners:
-        - name: http_listener
-          address:
-            socket_address:
-              address: 0.0.0.0
-              port_value: 10000
-          filter_chains:
-            - filters:
-                - name: envoy.filters.network.http_connection_manager
-                  typed_config:
-                    "@type": type.googleapis.com/envoy.extensions.filters.network.http_connection_manager.v3.HttpConnectionManager
-                    stat_prefix: ingress_http
-                    access_log:
-                      - name: envoy.access_loggers.stdout
-                        typed_config:
-                          "@type": type.googleapis.com/envoy.extensions.access_loggers.stream.v3.StdoutAccessLog
-                    route_config:
-                      name: local_route
-                      virtual_hosts:
-                        - name: backend
-                          domains:
-                            - "*"
-                          routes:
-                            - match:
-                                prefix: "/"
-                              route:
-                                cluster: backend_pods
-                    http_filters:
-                      - name: envoy.filters.http.router
-                        typed_config:
-                          "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
-      clusters:
-        - name: backend_pods
-          type: STRICT_DNS
-          connect_timeout: 1s
-          dns_lookup_family: V4_ONLY
-          dns_refresh_rate: 2s
-          lb_policy: ROUND_ROBIN
-          load_assignment:
-            cluster_name: backend_pods
-            endpoints:
-              - lb_endpoints:
-                  - endpoint:
-                      address:
-                        socket_address:
-                          address: backend.envoy-demo.svc.cluster.local
-                          port_value: 8080
-
-    admin:
-      access_log_path: /tmp/envoy-admin.log
-      address:
-        socket_address:
-          address: 0.0.0.0
-          port_value: 9901
+  name: envoy-gateway-demo
+spec:
+  controllerName: gateway.envoyproxy.io/gatewayclass-controller
 ---
-apiVersion: apps/v1
-kind: Deployment
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
 metadata:
-  name: envoy
+  name: demo
   namespace: envoy-demo
 spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: envoy
-  template:
-    metadata:
-      labels:
-        app: envoy
-    spec:
-      containers:
-        - name: envoy
-          image: envoyproxy/envoy:v1.38-latest
-          args:
-            - -c
-            - /etc/envoy/envoy.yaml
-            - --service-cluster
-            - local-demo
-            - --log-level
-            - info
-          ports:
-            - name: http
-              containerPort: 10000
-            - name: admin
-              containerPort: 9901
-          readinessProbe:
-            httpGet:
-              path: /ready
-              port: admin
-            initialDelaySeconds: 2
-            periodSeconds: 3
-          resources:
-            requests:
-              cpu: 20m
-              memory: 32Mi
-            limits:
-              memory: 128Mi
-          securityContext:
-            allowPrivilegeEscalation: false
-            capabilities:
-              drop:
-                - ALL
-            runAsNonRoot: true
-            runAsUser: 101
-            runAsGroup: 101
-          volumeMounts:
-            - name: envoy-config
-              mountPath: /etc/envoy/envoy.yaml
-              subPath: envoy.yaml
-              readOnly: true
-      securityContext:
-        seccompProfile:
-          type: RuntimeDefault
-      volumes:
-        - name: envoy-config
-          configMap:
-            name: envoy-config
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: envoy
-  namespace: envoy-demo
-spec:
-  type: NodePort
-  selector:
-    app: envoy
-  ports:
+  gatewayClassName: envoy-gateway-demo
+  listeners:
     - name: http
-      port: 10000
-      targetPort: http
-      nodePort: 30080
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        namespaces:
+          from: Same
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: backend
+  namespace: envoy-demo
+spec:
+  parentRefs:
+    - name: demo
+      sectionName: http
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: backend
+          port: 8080
 ```
 
-The backend image is Kubernetes' small test server. Its `/hostname` endpoint returns the name of the pod handling the request, which makes backend selection observable without introducing another proxy.
-
-The backend Service is deliberately headless because `clusterIP: None` causes cluster DNS to return the ready pod addresses. Envoy uses `STRICT_DNS` service discovery, refreshes the result regularly, and treats every returned address as a distinct upstream host. `ROUND_ROBIN` then selects among those hosts.
-
-The Envoy admin interface is used only by the readiness probe and is not exposed through the Service. An externally reachable Envoy admin interface would provide powerful operational controls and should not be published casually.
-
-The Envoy image tracks the latest patch of the maintained `1.38` release line. Pin an exact image version or digest in a production repository and update it through the normal dependency and vulnerability-management process.
-
-## 3. Apply and Verify the Resources
-
-Apply the complete manifest:
+Apply the resources:
 
 ```shell
-kubectl apply -f envoy-load-balancer.yaml
+kubectl apply --filename envoy-gateway-demo.yaml
 ```
 
-Wait for both Deployments:
+Wait for the backend Deployment:
 
 ```shell
 kubectl wait \
   --namespace envoy-demo \
   --for=condition=Available \
   deployment/backend \
-  --timeout=120s
-
-kubectl wait \
-  --namespace envoy-demo \
-  --for=condition=Available \
-  deployment/envoy \
-  --timeout=120s
+  --timeout=2m
 ```
 
-Inspect the resources:
+Then inspect the Gateway API status:
 
 ```shell
-kubectl get deployment,pods,service \
-  --namespace envoy-demo \
-  --output=wide
+kubectl get gatewayclass envoy-gateway-demo
+kubectl get gateway,httproute --namespace envoy-demo
 ```
 
-There should be three ready backend pods, one ready Envoy pod, one headless backend Service, and one NodePort Service for Envoy.
+The `GatewayClass` should report `Accepted`, and the `Gateway` should eventually report that it has been programmed. Envoy Gateway creates and configures the corresponding Envoy Deployment and `LoadBalancer` Service in `envoy-gateway-system`.
 
-If a Deployment does not become available, start with:
+You can see those generated resources with:
 
 ```shell
-kubectl describe deployment backend --namespace envoy-demo
-kubectl describe deployment envoy --namespace envoy-demo
-kubectl get events --namespace envoy-demo --sort-by=.lastTimestamp
+kubectl get deployment,service \
+  --namespace envoy-gateway-system \
+  --selector gateway.envoyproxy.io/owning-gateway-name=demo
 ```
 
-For Envoy configuration or upstream-discovery problems, inspect its logs:
+The generated names are intentionally not hard-coded in the tutorial. They are implementation details owned by Envoy Gateway.
 
-```shell
-kubectl logs deployment/envoy --namespace envoy-demo
-```
+## 4. Understand the Gateway API Resources
 
-## 4. Observe Envoy Load Balancing
+The manifest separates concerns that would otherwise be mixed into one static proxy configuration:
 
-Send one request from the local machine:
+- `GatewayClass` selects Envoy Gateway as the controller responsible for this class of gateways.
+- `Gateway` requests an HTTP listener on port 80. It represents the infrastructure entry point.
+- `HTTPRoute` attaches to that listener and forwards matching requests to the backend Service.
+- `Service` provides a stable Kubernetes abstraction over the ready backend pods.
+
+The `allowedRoutes` setting restricts this listener to routes from the same namespace. That is a useful default because it prevents unrelated namespaces from attaching routes without an explicit decision.
+
+No hostname is specified in this example, so the route accepts any HTTP `Host` header. Production routes should usually declare hostnames and use TLS listeners with certificates appropriate for those names.
+
+The important difference from a hand-written Envoy deployment is ownership. We own the Kubernetes intent. Envoy Gateway owns the generated listeners, clusters, endpoint discovery, and data-plane lifecycle. If pods or endpoints change, the controller updates Envoy without requiring us to rebuild a static ConfigMap.
+
+## 5. Send Requests Through Envoy
+
+Call the backend through the host port:
 
 ```shell
 curl http://localhost:8080/hostname
 ```
 
-The response should resemble:
-
-```text
-backend-6f8d7b9c5f-abc12
-```
-
-Send several independent requests:
+The response contains the name of the backend pod that handled the request. Send several independent requests:
 
 ```shell
 for request in $(seq 1 12); do
@@ -389,81 +306,110 @@ for request in $(seq 1 12); do
 done
 ```
 
-The three pod names should recur in a roughly round-robin sequence. The exact output can vary while endpoints are added, removed, or rediscovered, so a short sequence should be treated as an observation rather than a statistical guarantee.
+The output should contain multiple pod names, demonstrating that requests reach more than one replica. Do not expect an exact repeating sequence: connection reuse, endpoint readiness, retries, and load-balancing policy can all influence the observed order.
 
-Envoy writes one access-log entry for every request. Follow those logs in another terminal:
-
-```shell
-kubectl logs \
-  --namespace envoy-demo \
-  deployment/envoy \
-  --follow
-```
-
-Inspect the addresses published by the headless Service:
-
-```shell
-kubectl get endpointslice \
-  --namespace envoy-demo \
-  --selector kubernetes.io/service-name=backend \
-  --output=wide
-```
-
-Those endpoint addresses are the backend set Envoy obtains through DNS.
-
-## 5. Observe Endpoint Changes
-
-List the current backend pods:
+Confirm that three backend pods are available:
 
 ```shell
 kubectl get pods \
   --namespace envoy-demo \
-  --selector app=backend
+  --selector app=backend \
+  --output=wide
 ```
 
-Delete one pod by replacing `<pod-name>` with a name from the output:
+The topology spread constraint asks Kubernetes to distribute the replicas across nodes where possible. It is not required for HTTP load balancing, but it makes the local topology more representative of a multi-node deployment.
+
+## 6. Inspect Routing and Troubleshoot Failures
+
+Gateway API status conditions are the first place to look when traffic does not flow:
 
 ```shell
-kubectl delete pod <pod-name> --namespace envoy-demo
+kubectl describe gateway demo --namespace envoy-demo
+kubectl describe httproute backend --namespace envoy-demo
 ```
 
-Watch the Deployment return to three ready replicas:
+Useful conditions include:
+
+- `Accepted`, which indicates that the relevant controller accepts the resource.
+- `Programmed`, which indicates that the requested data-plane configuration was applied.
+- `ResolvedRefs`, which indicates that referenced objects such as the backend Service could be resolved.
+
+Next, verify the backend Service and its endpoints:
 
 ```shell
+kubectl get service,endpointslice --namespace envoy-demo
+```
+
+If the route is valid but requests still fail, inspect the Envoy Gateway controller:
+
+```shell
+kubectl logs \
+  --namespace envoy-gateway-system \
+  deployment/envoy-gateway
+```
+
+Also verify that the generated Envoy Service has an external address or published ports:
+
+```shell
+kubectl get service \
+  --namespace envoy-gateway-system \
+  --selector gateway.envoyproxy.io/owning-gateway-name=demo \
+  --output=wide
+```
+
+On k3d, the displayed address is less important than the complete path through the k3d port mapping and K3s ServiceLB. `curl http://localhost:8080/hostname` is the final end-to-end check.
+
+## 7. Observe Failure Recovery
+
+Delete one backend pod and watch the Deployment restore the desired replica count:
+
+```shell
+BACKEND_POD=$(kubectl get pods \
+  --namespace envoy-demo \
+  --selector app=backend \
+  --output=jsonpath='{.items[0].metadata.name}')
+
+kubectl delete pod "$BACKEND_POD" --namespace envoy-demo
+
 kubectl get pods \
   --namespace envoy-demo \
   --selector app=backend \
   --watch
 ```
 
-The Deployment's ReplicaSet creates a replacement. Once the new pod passes its readiness probe, the headless Service publishes its address. Envoy discovers the DNS change and begins including the new endpoint in load balancing.
+Press `Ctrl-C` after the replacement pod becomes ready, then repeat the request loop. Kubernetes updates the Service's EndpointSlices as pod readiness changes, and Envoy Gateway propagates the relevant endpoint state to Envoy.
 
-This demonstrates reconciliation and endpoint discovery, not a universal guarantee of zero downtime. Availability still depends on sufficient healthy replicas, accurate probes, capacity, graceful termination, and application behavior.
+This is the value of using Kubernetes-native discovery rather than a static list of pod IP addresses: the routing configuration follows the declared application state.
 
-## Why Not Use a Kubernetes LoadBalancer Service?
+## What This Example Does Not Cover
 
-For this local setup, a fixed NodePort provides the simplest explicit connection between the host and Envoy. The Envoy Service has exactly one job: deliver incoming traffic to the Envoy pod.
+This setup is intentionally local and minimal. A production design also needs decisions about:
 
-A `LoadBalancer` Service in K3s would involve the embedded ServiceLB implementation. That is useful in other scenarios, but it would add another load-balancing mechanism to an example intended to show Envoy's upstream discovery and selection.
+- TLS termination and certificate lifecycle
+- authentication and authorization
+- timeouts, retries, circuit breakers, and rate limits
+- access logs, metrics, traces, and alerting
+- high availability and disruption budgets
+- network policies and namespace delegation
+- resource sizing and upgrade strategy
+- the infrastructure-specific implementation of `LoadBalancer` Services
 
-Likewise, no Ingress resource is required. An Ingress resource needs an ingress controller to implement it, and this tutorial deliberately disables the bundled controller. Envoy is configured directly as the data plane.
-
-For a larger Kubernetes platform, static Envoy configuration is usually not the final architecture. [Envoy Gateway](https://gateway.envoyproxy.io/) can manage Envoy through the Kubernetes Gateway API and is a better fit when teams need declarative routes, listeners, policies, and multi-tenant lifecycle management. Direct configuration remains useful here because it exposes the listener, cluster, discovery type, and load-balancing policy without hiding them behind a control plane.
+Envoy Gateway supports policies and extensions for many of these concerns, but enabling features without a clear operational requirement usually makes a tutorial less useful. Start with a working request path, then add policy deliberately.
 
 ## Clean Up
 
-Delete the complete local cluster when finished:
+Delete the cluster when it is no longer needed:
 
 ```shell
-k3d cluster delete envoy-load-balancer
+k3d cluster delete envoy-gateway-demo
 ```
 
-Because the Kubernetes nodes run as containers, deleting the cluster also removes the workloads and cluster state created for this tutorial.
+Because Envoy Gateway and the application live inside that cluster, deleting the cluster removes all resources created by the tutorial.
 
 ## Conclusion
 
-The useful result in this example is not merely that `curl localhost:8080/hostname` returns a pod name. It is a clear understanding of which component owns each decision.
+The earlier static Envoy configuration was not unusually long because Envoy was doing something mysterious. It was long because native Envoy configuration explicitly describes details that a Kubernetes control plane can derive and manage.
 
-k3d provides the local Kubernetes environment and host-port mapping. The NodePort Service exposes Envoy. Kubernetes DNS publishes ready backend pod addresses through the headless Service. Envoy discovers those addresses and applies the configured round-robin policy.
+Envoy Gateway moves that responsibility to a controller and lets us express the routing model with standard Gateway API resources. The result is shorter application-owned configuration, clearer responsibility boundaries, Kubernetes-native status reporting, and a data plane that is reconciled as the cluster changes.
 
-That model is small enough to inspect directly and close enough to real service-proxy behavior to be useful. Production requirements—TLS, authentication, authorization, retries, timeouts, circuit breaking, observability, configuration delivery, and highly available Envoy replicas—can then be added deliberately instead of being hidden inside an ambiguous "load balancer" label.
+For a standalone proxy, a hand-written `envoy.yaml` may still be the right tool. For Kubernetes ingress and application routing, Envoy Gateway is usually the more maintainable abstraction.

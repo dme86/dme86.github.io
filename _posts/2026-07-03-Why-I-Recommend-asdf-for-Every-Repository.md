@@ -314,6 +314,99 @@ CI caches can preserve downloaded source archives and installed versions, but ca
 
 Production images should also align with the repository declarations where those tools are part of the runtime or build. asdf does not automatically guarantee this alignment; the pipeline must enforce or test it.
 
+## Do Fully Containerized Workflows Still Need asdf?
+
+Not necessarily.
+
+If a repository is genuinely containerized end to end, the container image can be the complete tool-version boundary. That means development, formatting, linting, tests, code generation, builds, and infrastructure commands all run through a pinned image. CI uses the same image, and developers do not invoke project tools directly from the host.
+
+In that model, adding the same versions to `.tool-versions` may create a second source of truth:
+
+```text
+.tool-versions
+Dockerfile
+```
+
+If the two declarations drift, the repository is less clear than before. The team must now decide whether the asdf version or the container version is authoritative.
+
+A well-designed container-only workflow can therefore make asdf unnecessary. The image reference or digest pins not only the main executable but also operating-system libraries and other dependencies that asdf does not manage. That is a stronger environment boundary.
+
+The important word is *genuinely*.
+
+Many repositories are described as containerized even though developers still run some of these commands on the host:
+
+- formatters and linters through editor integrations
+- language servers
+- `pre-commit` hooks
+- code generators
+- package-manager commands
+- database migration tools
+- cloud and Kubernetes CLIs
+- diagnostic commands during incidents
+
+If host execution remains part of the supported workflow, the host tool versions still need an answer. asdf can provide it.
+
+Containers and asdf are not mutually exclusive, but their responsibility boundary should be explicit. A repository might use containers for the application build and asdf for host-side operational tools. Another might make the development container authoritative and omit `.tool-versions` entirely. Both are coherent designs.
+
+What I would avoid is maintaining both mechanisms automatically without stating which one owns each tool.
+
+## Infrastructure Tooling Keeps Version Management Relevant
+
+Infrastructure repositories are where I expect host-side version management to remain especially useful.
+
+Tools such as OpenTofu, Terraform, `kubectl`, Helm, Kustomize, SOPS, and cloud-provider CLIs are frequently invoked directly from a terminal. Running them in containers is possible, but it often requires mounting and translating a substantial part of the host environment:
+
+- the repository and working directory
+- cloud credentials
+- `KUBECONFIG`
+- SSH agent sockets
+- GPG or age keys
+- plugin and provider caches
+- certificate stores
+- network and VPN access
+- terminal input and output
+- file ownership and permissions
+
+A carefully designed wrapper can handle these mounts. At some point, however, the wrapper becomes more complex than installing the pinned CLI locally.
+
+asdf keeps the native workflow:
+
+```shell
+tofu plan
+kubectl diff -f deployment/
+helm template ./chart
+```
+
+while allowing the repository to select the expected versions:
+
+```text
+opentofu 1.10.0
+kubectl 1.32.0
+helm 3.17.0
+```
+
+These versions are illustrative, not a recommendation for current production releases.
+
+Version consistency matters for infrastructure tools. Different OpenTofu versions can change validation, provider behavior, lock-file output, plan rendering, or supported language features. Different Kubernetes client versions may expose different APIs and compatibility behavior. A formatting-only difference can create noisy pull requests; a behavioral difference can affect a deployment.
+
+That does not mean infrastructure CLIs must run on the host. An organization with a disciplined, pinned infrastructure-toolbox image may prefer the container boundary. It means the cost-benefit calculation often favors a lightweight native version manager because infrastructure work interacts so heavily with host identity, credentials, files, and networks.
+
+For my workflow, that practical advantage makes asdf likely to remain relevant even where application builds are fully containerized.
+
+## `mise` Is a Credible Alternative
+
+[`mise`](https://mise.jdx.dev/) is another tool and runtime version manager worth knowing about.
+
+It can read asdf-style `.tool-versions` files, automatically select tools by directory, and use asdf plugins when necessary. It also provides its own `mise.toml` format and expands into areas such as environment management and task execution.
+
+The overlap makes `mise` a credible alternative rather than an unrelated product. A repository can use `.tool-versions` as a relatively tool-neutral declaration while different contributors use asdf or mise.
+
+That compatibility has limits. Modern asdf and mise do not have identical commands or configuration semantics, and full compatibility is not a continuing design goal for mise. For example, mise may allow fuzzy version declarations that asdf cannot use unless versions are pinned explicitly.
+
+I have not evaluated mise deeply enough in real projects to recommend it over asdf. Its broader feature set, performance model, tool backends, supply-chain approach, and Windows support are all reasonable subjects for an evaluation. They are not a basis for pretending I already have operational experience I do not have.
+
+For now, asdf remains the tool I know, use, and recommend. Teams selecting a version manager today should still compare both against their actual requirements instead of treating my preference as a universal conclusion.
+
 ## What asdf Does Not Solve
 
 asdf is a version manager, not a complete environment manager.
@@ -354,7 +447,7 @@ I recommend asdf because it gives repositories an explicit, reviewable answer to
 
 It replaces several version-manager interfaces with one. It makes entering a directory enough to select the right tools. It gives onboarding and CI the same installation command. It turns upgrades into visible diffs instead of workstation accidents.
 
-`.tool-versions` is not a lockfile for the entire machine, and asdf is not a security sandbox. Those limitations are real. Within its intended boundary, however, it is simple, composable, and effective.
+`.tool-versions` is not a lockfile for the entire machine, and asdf is not a security sandbox. Those limitations are real. A fully containerized workflow may not need it, and mise is a credible alternative worth evaluating. Within asdf's intended boundary, however, it is simple, composable, and effective.
 
 The repository states what it needs:
 
@@ -370,4 +463,4 @@ The developer runs:
 asdf install
 ```
 
-That is a strong developer-experience improvement for very little configuration. One runtime is enough to benefit from explicit version selection; additional tools only increase the value of a shared interface. That is why I recommend asdf for almost every repository.
+That is a strong developer-experience improvement for very little configuration. One runtime is enough to benefit from explicit version selection; additional tools only increase the value of a shared interface. I recommend asdf for almost every repository that executes versioned tools on the host, while recognizing that a truly container-only workflow may already have a better source of truth.

@@ -1,19 +1,19 @@
 ---
-title: "Why I Recommend asdf for Multi-Tool Repositories"
-description: "asdf gives a repository one version file and one workflow for the runtimes, CLIs, and infrastructure tools required to work on it."
+title: "Why I Recommend asdf for Every Repository"
+description: "asdf gives repositories an explicit, reviewable version declaration for the runtimes and command-line tools required to work on them."
 layout: post
 date: 2026-07-03 18:00:00 +0200
 tags: [asdf, Developer Experience, DevOps, CLI, Tooling]
 excerpt_separator: "<!--more-->"
 ---
 
-Software repositories rarely depend on one tool.
+Every software repository depends on tools.
 
-A service may require a particular Go or Node.js release, a matching Terraform CLI, a specific version of `kubectl`, and a documentation generator. Without an explicit mechanism, developers install whatever their operating system provides, CI uses a different container image, and the production build quietly depends on another version again.
+Even a small project may require one particular version of Go, Node.js, Python, or another runtime. Larger repositories often add Terraform, `kubectl`, documentation generators, and code-generation tools. Without an explicit mechanism, developers install whatever their operating system provides, CI uses a different version, and the production build quietly depends on another one again.
 
 These differences often remain invisible until a command changes behavior, a formatter rewrites files differently, or an upgrade works on one machine and fails everywhere else.
 
-[asdf](https://asdf-vm.com/) is the tool version manager I recommend for this problem. It gives a repository one interface for many runtimes and command-line tools, backed by one small file: `.tool-versions`. The file can be committed to Git, reviewed like any other dependency change, and used by developers and CI to install the same declared versions.
+[asdf](https://asdf-vm.com/) is the tool version manager I recommend for this problem. It gives a repository one version-selection interface backed by one small file: `.tool-versions`. The file can be committed to Git, reviewed like any other dependency change, and used by developers and CI to install the same declared versions.
 
 asdf does not make an environment perfectly reproducible, and it is not a replacement for a package manager or a container image. It solves a narrower problem extremely well: selecting and installing the versions of project tools that should be active in a directory.
 
@@ -38,6 +38,22 @@ The repository should therefore answer:
 - How is an upgrade reviewed?
 
 asdf gives those questions a consistent answer without requiring a separate version manager for every ecosystem.
+
+## One Tool Is Enough to Justify It
+
+The case for asdf does not begin only when a repository becomes polyglot.
+
+If a project depends on one versioned runtime, declaring that version is already valuable. A Node.js repository should not require contributors to infer the supported version from a CI image. A Go repository should not rely on whichever compiler a workstation package manager installed. A Python project should not discover interpreter drift only after a dependency fails to build.
+
+A minimal `.tool-versions` file can contain one line:
+
+```text
+golang 1.24.1
+```
+
+That line makes the expected compiler version visible, reviewable, and installable. It also establishes a consistent mechanism if the repository later adds a formatter, infrastructure CLI, or documentation tool.
+
+Not every contributor must use asdf for the declaration to be useful. Other automation can parse or mirror the version, and developers using another version manager can still see the repository's expectation. The important improvement is that the version belongs to the project rather than to an individual's workstation.
 
 ## One Interface, Many Plugins
 
@@ -354,4 +370,4 @@ The developer runs:
 asdf install
 ```
 
-That is a strong developer-experience improvement for very little configuration, which is why I recommend asdf for almost every repository that depends on more than one versioned tool.
+That is a strong developer-experience improvement for very little configuration. One runtime is enough to benefit from explicit version selection; additional tools only increase the value of a shared interface. That is why I recommend asdf for almost every repository.

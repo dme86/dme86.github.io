@@ -312,7 +312,7 @@ The target graph is useful when it expresses reality. It is harmful when used as
 
 ## A Makefile Pairs Well with asdf
 
-A Makefile defines how to work with the repository. [asdf](/2026/07/03/Why-I-Recommend-asdf-for-Multi-Tool-Repositories/) can define which versions of those tools to use.
+A Makefile defines how to work with the repository. [asdf](/2026/07/03/Why-I-Recommend-asdf-for-Every-Repository/) can define which versions of those tools to use.
 
 A repository may contain:
 

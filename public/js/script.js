@@ -151,6 +151,43 @@
     });
   }
 
+  function installCoffeeCopyButton() {
+    var button = document.querySelector('[data-copy-bitcoin-address]');
+    var address = document.querySelector('#coffee-bitcoin-address');
+
+    if (!button || !address) {
+      return;
+    }
+
+    var status = document.querySelector('.coffee-copy-status');
+
+    button.addEventListener('click', function() {
+      copyText(address.textContent.trim()).then(function() {
+        button.textContent = 'Copied';
+        button.classList.add('is-copied');
+
+        if (status) {
+          status.textContent = 'Bitcoin address copied to clipboard.';
+        }
+
+        window.setTimeout(function() {
+          button.textContent = 'Copy';
+          button.classList.remove('is-copied');
+        }, 1400);
+      }).catch(function() {
+        button.textContent = 'Error';
+
+        if (status) {
+          status.textContent = 'The address could not be copied. Please select it manually.';
+        }
+
+        window.setTimeout(function() {
+          button.textContent = 'Copy';
+        }, 1400);
+      });
+    });
+  }
+
   function ensureCodeOverlay() {
     if (codeOverlay) {
       return codeOverlay;
@@ -1701,6 +1738,7 @@
   }
   installHeadingAnchors();
   installCopyButtons();
+  installCoffeeCopyButton();
   openCodeOverlayFromHash();
   markExternalLinks();
   installKeyboardHint();

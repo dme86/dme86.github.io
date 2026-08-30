@@ -2083,3 +2083,171 @@ a.pagination-item:hover {
 .css .o,
 .css .o + .nt,
 .css .nt + .nt { color: #aaa59a; }
+
+/* Bitcoin coffee page and post CTA */
+.coffee-lede {
+  margin-bottom: 1.5rem;
+  color: var(--color-text-muted);
+  font-size: 1.05rem;
+}
+
+.coffee-payment {
+  display: grid;
+  gap: 1.35rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding: 1.35rem;
+  background: var(--color-panel-gradient);
+  border: 1px solid var(--color-border);
+  border-radius: .9rem;
+  box-shadow: var(--shadow-soft);
+}
+
+.coffee-qr {
+  width: min(16rem, 100%);
+  margin: 0 auto;
+  padding: .65rem;
+  background: #fff;
+  border-radius: .7rem;
+}
+
+.coffee-qr img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 0;
+}
+
+.coffee-suggestion {
+  margin: 0 0 1rem;
+  color: var(--color-link-hover);
+  font-family: "PT Sans", Helvetica, Arial, sans-serif;
+  font-weight: 700;
+}
+
+.coffee-address-block {
+  margin-bottom: 1rem;
+}
+
+.coffee-address-label {
+  display: block;
+  margin-bottom: .35rem;
+  color: var(--color-text-muted);
+  font-family: "PT Sans", Helvetica, Arial, sans-serif;
+  font-size: .72rem;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.coffee-address-row {
+  display: flex;
+  align-items: stretch;
+  gap: .5rem;
+}
+
+.coffee-address-row code {
+  display: block;
+  min-width: 0;
+  flex: 1;
+  padding: .6rem .7rem;
+  overflow-wrap: anywhere;
+  color: var(--color-text-strong);
+  background: var(--color-bg-muted);
+  border: 1px solid var(--color-border);
+  border-radius: .45rem;
+  font-size: .72rem;
+  line-height: 1.4;
+}
+
+.coffee-copy-button,
+.coffee-send-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: .55rem .85rem;
+  color: var(--color-text-strong);
+  background: var(--color-bg-soft);
+  border: 1px solid var(--color-border);
+  border-radius: .45rem;
+  font-family: "PT Sans", Helvetica, Arial, sans-serif;
+  font-size: .75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.coffee-send-button {
+  color: var(--color-bg);
+  background: var(--color-link);
+  border-color: var(--color-link);
+  text-decoration: none;
+}
+
+.coffee-copy-button:hover,
+.coffee-copy-button:focus,
+.coffee-copy-button.is-copied {
+  color: var(--color-link-hover);
+  border-color: var(--color-link-hover);
+}
+
+.coffee-copy-button.is-copied {
+  color: var(--color-success);
+}
+
+.coffee-send-button:hover,
+.coffee-send-button:focus {
+  color: var(--color-bg);
+  background: var(--color-link-hover);
+  border-color: var(--color-link-hover);
+  text-decoration: none;
+}
+
+.coffee-copy-status {
+  display: block;
+  min-height: 1.2rem;
+  margin-top: .3rem;
+  color: var(--color-text-muted);
+  font-family: "PT Sans", Helvetica, Arial, sans-serif;
+  font-size: .68rem;
+}
+
+.coffee-instructions {
+  margin-bottom: 0;
+}
+
+.post-coffee-cta {
+  margin: -1.5rem 0 2rem;
+  padding: .85rem 1rem;
+  background: var(--color-bg-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: .7rem;
+  box-shadow: var(--shadow-soft);
+  font-family: "PT Sans", Helvetica, Arial, sans-serif;
+  font-size: .85rem;
+  text-align: center;
+}
+
+.post-coffee-cta a {
+  font-weight: 700;
+}
+
+@media (min-width: 42em) {
+  .coffee-payment {
+    grid-template-columns: minmax(10rem, .8fr) minmax(0, 1.2fr);
+  }
+}
+
+@media (max-width: 25em) {
+  .coffee-address-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+}
+
+@media print {
+  .coffee-copy-button,
+  .coffee-send-button,
+  .post-coffee-cta {
+    display: none;
+  }
+}

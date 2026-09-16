@@ -10,6 +10,16 @@
 {% assign age_weeks = age_days | divided_by: 7 %}
 {% assign age_months = age_days | divided_by: 30 %}
 {% assign age_years = age_days | divided_by: 365 %}
+{% if page.lang == 'de' %}
+  {% if age_minutes < 10 %}wenige Minuten alt
+  {% elsif age_hours < 1 %}{{ age_minutes }} Minuten alt
+  {% elsif age_hours < 24 %}{% if age_hours == 1 %}1 Stunde alt{% else %}{{ age_hours }} Stunden alt{% endif %}
+  {% elsif age_days < 7 %}{% if age_days == 1 %}1 Tag alt{% else %}{{ age_days }} Tage alt{% endif %}
+  {% elsif age_days < 30 %}{% if age_weeks == 1 %}über eine Woche alt{% else %}{{ age_weeks }} Wochen alt{% endif %}
+  {% elsif age_days < 365 %}{% if age_months == 1 %}über einen Monat alt{% else %}{{ age_months }} Monate alt{% endif %}
+  {% elsif age_days < 730 %}über ein Jahr alt
+  {% else %}{{ age_years }} Jahre alt{% endif %}
+{% else %}
 {% if age_minutes < 10 %}
 few minutes old
 {% elsif age_hours < 1 %}
@@ -26,4 +36,5 @@ few minutes old
 over a year old
 {% else %}
 {{ age_years }} years old
+{% endif %}
 {% endif %}

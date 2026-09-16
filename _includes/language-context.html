@@ -1,0 +1,21 @@
+{% assign page_language = page.lang | default: site.lang | default: 'en' %}
+{% assign language_home = '/' %}
+{% if page_language == 'de' %}{% assign language_home = '/de/' %}{% endif %}
+{% assign english_url = '/' %}
+{% assign german_url = '/de/' %}
+{% assign has_translation = false %}
+{% if page.translation_key == 'home' %}
+  {% assign has_translation = true %}
+{% elsif page.translation_key %}
+  {% assign english_version = site.posts | where: 'translation_key', page.translation_key | first %}
+  {% assign german_version = site.de | where: 'translation_key', page.translation_key | first %}
+  {% if english_version and german_version %}
+    {% assign english_url = english_version.url %}
+    {% assign german_url = german_version.url %}
+    {% assign has_translation = true %}
+  {% endif %}
+{% endif %}
+{% unless has_translation %}
+  {% if page_language == 'en' %}{% assign english_url = page.url %}{% endif %}
+  {% if page_language == 'de' %}{% assign german_url = page.url %}{% endif %}
+{% endunless %}

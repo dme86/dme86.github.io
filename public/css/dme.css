@@ -159,6 +159,17 @@ html {
   padding-top: .1rem;
   font-family: "PT Sans", Helvetica, Arial, sans-serif;
 }
+.language-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  white-space: nowrap;
+  font-size: .68rem;
+}
+.masthead-nav .language-switch a[aria-current="true"] {
+  text-decoration: underline;
+  text-underline-offset: .2em;
+}
 .masthead-nav a {
   font-size: .68rem;
   font-weight: 700;

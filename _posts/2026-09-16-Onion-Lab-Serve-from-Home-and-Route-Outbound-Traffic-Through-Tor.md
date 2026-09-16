@@ -2,6 +2,7 @@
 title: "Onion Lab: Serve from Home and Route Outbound Traffic Through Tor"
 description: "A small Docker Compose demo that exposes web and SSH Onion Services without port forwarding or a registered domain, and routes application egress through Tor."
 layout: post
+translation_key: onion-lab
 date: 2026-09-16 15:00:00 +0200
 tags: [Tor, Docker, Networking, Homelab, Linux]
 excerpt_separator: "<!--more-->"

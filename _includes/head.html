@@ -50,6 +50,12 @@
   <link rel="canonical" href="{{ page.url | absolute_url }}">
   {% endif %}
 
+  {% if has_translation %}
+  <link rel="alternate" hreflang="en" href="{{ english_url | absolute_url }}">
+  <link rel="alternate" hreflang="de" href="{{ german_url | absolute_url }}">
+  <link rel="alternate" hreflang="x-default" href="{{ english_url | absolute_url }}">
+  {% endif %}
+
   <link rel="stylesheet" href="{{ '/public/css/poole.css' | relative_url }}">
   <link rel="stylesheet" href="{{ '/public/css/syntax.css' | relative_url }}">
   <link rel="stylesheet" href="{{ '/public/css/dme.css' | relative_url }}">

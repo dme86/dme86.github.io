@@ -1,7 +1,7 @@
 <span class="post-date js-post-meta">
   {% capture post_age %}{% include post-age.html date=include.date %}{% endcapture %}
-  {{ include.date | date_to_string }} <span class="post-age js-post-age" data-post-date="{{ include.date | date_to_xmlschema }}">({{ post_age | strip }})</span> |
-  <span{% if include.word_id %} id="{{ include.word_id }}"{% endif %}>{{ include.word_count }}</span> words
+  {{ include.date | date_to_string }} <span class="post-age{% unless page.lang == 'de' %} js-post-age{% endunless %}" data-post-date="{{ include.date | date_to_xmlschema }}">({{ post_age | strip }})</span> |
+  <span{% if include.word_id %} id="{{ include.word_id }}"{% endif %}>{{ include.word_count }}</span> {% if page.lang == 'de' %}Wörter{% else %}words{% endif %}
   <span class="js-code-metric" hidden>&middot; <span class="post-loc js-loc-count">0</span> LoC,</span>
-  ~<span class="post-read-time">{{ include.read_time }}</span> min read
+  ~<span class="post-read-time">{{ include.read_time }}</span> {% if page.lang == 'de' %}Min. Lesezeit{% else %}min read{% endif %}
 </span>

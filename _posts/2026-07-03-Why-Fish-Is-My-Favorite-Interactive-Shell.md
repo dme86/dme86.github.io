@@ -1,5 +1,5 @@
 ---
-title: "Why Fish Is My Favorite Interactive Shell"
+title: "Fish Makes the Terminal Feel Like a Human Interface"
 description: "Fish is designed for human interaction first: useful defaults, strong completions, directory history, and a clear escape hatch when POSIX shell syntax is required."
 layout: post
 date: 2026-07-03 14:00:00 +0200

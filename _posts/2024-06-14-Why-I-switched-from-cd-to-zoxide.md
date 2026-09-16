@@ -1,5 +1,5 @@
 ---
-title: Why I Switched from cd to zoxide
+title: "Less Typing, Faster Navigation with zoxide"
 layout: post
 tags: [Tutorials]
 ---

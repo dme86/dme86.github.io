@@ -1,5 +1,5 @@
 ---
-title: "Why Every Repository Should Have a Makefile"
+title: "Give Your Repository a Front Door with Make"
 description: "A small Makefile gives developers and CI one documented interface for setup, tests, builds, and other repository workflows."
 layout: post
 date: 2026-07-03 19:30:00 +0200

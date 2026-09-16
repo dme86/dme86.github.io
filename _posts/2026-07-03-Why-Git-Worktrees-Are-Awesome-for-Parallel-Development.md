@@ -1,5 +1,5 @@
 ---
-title: "Why Git Worktrees Are Awesome for Parallel Development"
+title: "Git Worktrees Keep Parallel Tasks in Their Own Directories"
 description: "Git worktrees keep features, reviews, hotfixes, and parallel tools in separate directories without duplicating the repository or constantly switching branches."
 layout: post
 date: 2026-07-03 19:35:00 +0200

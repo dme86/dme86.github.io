@@ -172,7 +172,7 @@ I accept that distinction because continuous reconciliation is not currently a r
 
 Renovate deserves the same precision. It can detect and propose updates, but it cannot prove that every new image works. As I argued in [Renovate Is Not the Problem. Your Pipeline Is.](/2026/06/27/Renovate-Is-Not-the-Problem-Your-Pipeline-Is/), dependency automation is only as trustworthy as the feedback and policy around it. Updates need validation, controlled rollout, observable results, and a recovery path.
 
-Repository conventions help keep that operating model easy to use. A small, documented interface such as the one described in [Why Every Repository Should Have a Makefile](/2026/07/03/Why-Every-Repository-Should-Have-a-Makefile/) can give local work and CI the same commands for validation and deployment without hiding the underlying tools.
+Repository conventions help keep that operating model easy to use. A small, documented interface such as the one described in [Give Your Repository a Front Door with Make](/2026/07/03/Why-Every-Repository-Should-Have-a-Makefile/) can give local work and CI the same commands for validation and deployment without hiding the underlying tools.
 
 The result is deliberately boring infrastructure. That is a compliment. A deployment should not require me to rediscover how the system works.
 

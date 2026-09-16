@@ -10,7 +10,7 @@ If you want to operate a Tor exit node properly, you should avoid doing it by ha
 
 You need a repeatable bootstrap, a hardened SSH configuration, a firewall that only exposes what you actually need, a local resolver, and a maintenance path that does not turn into improvisation after the first update cycle.
 
-I still like CentOS Stream 9 for this kind of infrastructure work. I explained why in an earlier article here: [Why I Continue To Advocate For CentOS Stream In Production Environments](https://dme86.github.io/2024/03/05/Why-I-Continue-to-Advocate-for-CentOS-Stream-in-Production-Environments/).
+I still like CentOS Stream 9 for this kind of infrastructure work. I explained why in an earlier article here: [The Case for CentOS Stream in Production](https://dme86.github.io/2024/03/05/Why-I-Continue-to-Advocate-for-CentOS-Stream-in-Production-Environments/).
 
 In this article, I will show a small Ansible setup that bootstraps a CentOS Stream 9 host, configures it as a Tor exit relay, adds a local Unbound resolver, hardens SSH, enables fail2ban, and gives you a minimal maintenance workflow.
 

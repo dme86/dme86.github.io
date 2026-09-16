@@ -1,5 +1,5 @@
 ---
-title: "Why Docker Buildx Bake Is More Interesting Than It Looks"
+title: "Docker Buildx Bake: Image Builds as Configuration"
 description: "Why Bake files are cool, when to use them, and why remote Bake definitions are a genuinely useful trick."
 layout: post
 date: 2026-06-12 10:30:00 +0200

@@ -1,5 +1,5 @@
 ---
-title: "Why I Recommend asdf for Every Repository"
+title: "Pin Project Tools with asdf and .tool-versions"
 description: "asdf gives repositories an explicit, reviewable version declaration for the runtimes and command-line tools required to work on them."
 layout: post
 date: 2026-07-03 18:00:00 +0200

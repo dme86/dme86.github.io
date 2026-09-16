@@ -1,5 +1,5 @@
 ---
-title: Why I Continue To Advocate For Centos Stream In Production Environments
+title: "The Case for CentOS Stream in Production"
 layout: post
 mermaid: true
 tags: [Linux, CentOS]

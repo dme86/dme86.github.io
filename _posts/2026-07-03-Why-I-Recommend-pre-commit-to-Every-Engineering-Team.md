@@ -1,5 +1,5 @@
 ---
-title: "Why I Recommend pre-commit to Every Engineering Team"
+title: "Catch Mechanical Mistakes Before Code Review with pre-commit"
 description: "pre-commit turns repository checks into fast, versioned feedback that developers can run locally and CI can enforce consistently."
 layout: post
 date: 2026-07-03 16:00:00 +0200

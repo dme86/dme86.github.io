@@ -1,5 +1,5 @@
 ---
-title: "Why I Recommend Trunk-Based Development"
+title: "Trunk-Based Development: One Code Stream, Clear Deployment State"
 description: "Why short-lived branches, one main code stream, immutable artifacts, and explicit environment state usually produce safer delivery than branch-per-environment workflows."
 layout: post
 date: 2026-06-27 14:50:00 +0200

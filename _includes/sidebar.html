@@ -5,7 +5,7 @@
 <!-- Toggleable sidebar -->
 <div class="sidebar" id="sidebar">
   <nav class="sidebar-nav">
-    <a class="sidebar-nav-item{% if page.title == 'Home' %} active{% endif %}" href="{{ language_home | relative_url }}">{% if page_language == 'de' %}Startseite{% else %}Home{% endif %}</a>
+    <a class="sidebar-nav-item{% if page.title == 'Home' %} active{% endif %}" href="{{ '/' | relative_url }}">Home</a>
 
     {% comment %}
       The code below dynamically generates a sidebar nav of pages with
@@ -15,7 +15,7 @@
     {% assign pages_list = site.pages | sort:"url" %}
     {% for node in pages_list %}
       {% if node.title != null %}
-        {% if node.layout == "page" and node.lang == page_language %}
+        {% if node.layout == "page" %}
           <a class="sidebar-nav-item{% if page.url == node.url %} active{% endif %}" href="{{ node.url | relative_url }}">{{ node.title }}</a>
         {% endif %}
       {% endif %}
@@ -27,7 +27,7 @@
 
   <div class="sidebar-item">
     <p>
-      &copy; {{ site.time | date: '%Y' }} Daniel Meier. {% if page_language == 'de' %}Alle Rechte vorbehalten.{% else %}All rights reserved.{% endif %}
+      &copy; {{ site.time | date: '%Y' }} Daniel Meier. All rights reserved.
     </p>
   </div>
 </div>

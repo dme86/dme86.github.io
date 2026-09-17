@@ -1,5 +1,0 @@
-<span class="language-switch" role="group" aria-label="{% if page_language == 'de' %}Sprache{% else %}Language{% endif %}">
-  <a href="{{ english_url | relative_url }}" lang="en" hreflang="en"{% if page_language == 'en' %} aria-current="true"{% endif %} title="English">EN</a>
-  <span aria-hidden="true">|</span>
-  <a href="{{ german_url | relative_url }}" lang="de" hreflang="de"{% if page_language == 'de' %} aria-current="true"{% endif %} title="{% if has_translation %}Deutsch{% else %}Deutschsprachige Artikel{% endif %}">DE</a>
-</span>

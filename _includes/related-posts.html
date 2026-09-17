@@ -1,18 +1,14 @@
-{% assign related_candidates = site.posts %}
-{% if page.lang == 'de' %}
-  {% assign related_candidates = site.de | sort: 'date' | reverse %}
-{% endif %}
 {% assign related_limit = 3 %}
 {% assign related_count = 0 %}
 {% capture related_urls %}|{{ page.url }}|{% endcapture %}
 
 <div class="related">
-  <h2>{% if page.lang == 'de' %}Weitere Artikel{% else %}Related posts{% endif %}</h2>
+  <h2>Related posts</h2>
   <ul class="related-posts">
     {% if page.tags and page.tags.size > 0 %}
       {% assign max_shared_tags = page.tags | size %}
       {% for target_score in (1..max_shared_tags) reversed %}
-        {% for candidate in related_candidates %}
+        {% for candidate in site.posts %}
           {% if related_count < related_limit %}
             {% capture candidate_key %}|{{ candidate.url }}|{% endcapture %}
             {% unless related_urls contains candidate_key %}
@@ -41,7 +37,7 @@
       {% endfor %}
     {% endif %}
 
-    {% for candidate in related_candidates %}
+    {% for candidate in site.posts %}
       {% if related_count < related_limit %}
         {% capture candidate_key %}|{{ candidate.url }}|{% endcapture %}
         {% unless related_urls contains candidate_key %}

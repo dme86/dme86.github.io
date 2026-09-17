@@ -23,21 +23,3 @@ theme_name:          DME
 theme_version:       1.0.0
 google_analytics_id: #UA-XXXX-Y
 excerpt_separator: <!-- more -->
-
-# German articles are a separate collection so English pagination and feeds stay intact.
-lang: en
-collections:
-  de:
-    output: true
-defaults:
-  - scope:
-      path: ""
-    values:
-      lang: en
-  - scope:
-      path: ""
-      type: de
-    values:
-      lang: de
-      layout: post
-      excerpt_separator: "<!--more-->"

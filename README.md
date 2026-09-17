@@ -43,21 +43,3 @@ make clean
 - `make clean` removes generated Jekyll output.
 
 Generated files and local gems are ignored by Git.
-
-## English and German articles
-
-English remains the default language. Existing posts and their URLs stay in
-`_posts`. German translations live in the separate `_de` collection and use an
-explicit `permalink` under `/de/`. They do not enter the English pagination or
-Atom feed. `/de/` lists the available German articles.
-
-To add a translation, give the English post and German document the same unique
-`translation_key`. Preserve the original `date` in the translation and copy its
-code blocks unchanged. The `_de` collection defaults to `lang: de` and
-`layout: post`; other pages default to `lang: en`.
-
-Liquid uses the key to generate the EN | DE links and reciprocal `hreflang`
-links, including `x-default` for English. Each version has its own canonical URL
-and HTML language. For English articles without a translation, DE leads to the
-German overview and no translated alternate is advertised. No extra plugin or
-JavaScript is needed for language selection.

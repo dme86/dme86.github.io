@@ -1,6 +1,5 @@
-{% include language-context.html %}
 <!DOCTYPE html>
-<html lang="{{ page_language }}">
+<html lang="en-us">
 
   {% include head.html %}
 
@@ -14,16 +13,15 @@
       <div class="container masthead-content">
         <div class="masthead-brand">
           <h3 class="masthead-title">
-            <a href="{{ language_home | relative_url }}" title="{% if page_language == 'de' %}Startseite{% else %}Home{% endif %}">Daniel Meier</a>
+            <a href="{{ site.baseurl }}/" title="Home">Daniel Meier</a>
           </h3>
-          <small class="masthead-tagline">{% if page_language == 'de' %}Infrastruktur, Linux, Automatisierung und Betrieb{% else %}{{ site.tagline }}{% endif %}</small>
+          <small class="masthead-tagline">Infrastructure, Linux, automation, and operational engineering</small>
         </div>
 
-        <nav class="masthead-nav" aria-label="{% if page_language == 'de' %}Hauptnavigation{% else %}Primary{% endif %}">
-          {% include language-switch.html %}
-          <a href="{{ '/search/' | relative_url }}">{% if page_language == 'de' %}Suche (EN){% else %}Search{% endif %}</a>
-          <a href="{{ '/topics/' | relative_url }}">{% if page_language == 'de' %}Themen (EN){% else %}Topics{% endif %}</a>
-          <a href="{{ '/about/' | relative_url }}">{% if page_language == 'de' %}Über mich (EN){% else %}About{% endif %}</a>
+        <nav class="masthead-nav" aria-label="Primary">
+          <a href="{{ '/search/' | relative_url }}">Search</a>
+          <a href="{{ '/topics/' | relative_url }}">Topics</a>
+          <a href="{{ '/about/' | relative_url }}">About</a>
           <a href="https://www.linkedin.com/in/dmeier86/" rel="me">LinkedIn</a>
         </nav>
       </div>
@@ -38,8 +36,8 @@
     </div>
 
     <label for="sidebar-checkbox" class="sidebar-toggle"></label>
-    <button class="scroll-top" id="scroll-top" type="button" aria-label="{% if page_language == 'de' %}Nach oben{% else %}Scroll to top{% endif %}">
-      <span class="scroll-top-label">{% if page_language == 'de' %}Nach oben{% else %}Top{% endif %}</span>
+    <button class="scroll-top" id="scroll-top" type="button" aria-label="Scroll to top">
+      <span class="scroll-top-label">Top</span>
       <span class="scroll-top-progress" id="scroll-top-progress" aria-hidden="true"></span>
     </button>
 
